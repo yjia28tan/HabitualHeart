@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "416442513165",
+    "project_id": "habitual-heart",
+    "storage_bucket": "habitual-heart.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:416442513165:android:6a87482795f65140fd6244",
+        "android_client_info": {
+          "package_name": "com.example.habitualheart"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "416442513165-kppj6trnvpd7u6t4e2uabbrrsd5vjqsi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASN6GATF_FlE2N6oaAF9Hn4uGSEct6jJQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "416442513165-3rj0s19mkui1grdj274n6pjohpaberha.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "416442513165-ehhp9as6obtkhhtgho29f72cqc3vetd5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.habitualheart"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:416442513165:android:73a9f84273f78328fd6244",
+        "android_client_info": {
+          "package_name": "com.example.habitualheart.habitual_heart_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "416442513165-kppj6trnvpd7u6t4e2uabbrrsd5vjqsi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASN6GATF_FlE2N6oaAF9Hn4uGSEct6jJQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "416442513165-3rj0s19mkui1grdj274n6pjohpaberha.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "416442513165-ehhp9as6obtkhhtgho29f72cqc3vetd5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.habitualheart"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
