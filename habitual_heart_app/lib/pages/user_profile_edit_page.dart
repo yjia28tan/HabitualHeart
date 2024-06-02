@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:habitual_heart_app/design/font_style.dart';
+import '/main.dart';
+import '/design/font_style.dart';
 import '/design/font_style.dart';
 import '/widgets/textfield_style.dart';
 import '/pages/signin_page.dart';
@@ -146,6 +147,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
       children: [
         Scaffold(
           appBar: AppBar(
+            leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                color: Colors.white, // set your desired color here
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
             title: Text(
               "Profile",
               style: headerText,
@@ -355,6 +365,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       },
                       icon: const Icon(
                         Icons.system_update_alt,
+                          color: Color(0xFFE5FFD0,)
                       ),
                       label: Text(
                         'Update',
