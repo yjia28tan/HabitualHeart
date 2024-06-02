@@ -31,3 +31,15 @@ const TextStyle homepageText = TextStyle(
   fontSize: 20,
   fontWeight: FontWeight.bold,
 );
+
+final TextStyle homeButtonText = GoogleFonts.leagueSpartan(
+  color: Color(0xFFFFFFFF),
+  fontSize: 18,
+  fontWeight: FontWeight.w900,
+);
+
+final TextStyle userName_display = GoogleFonts.leagueSpartan(
+  color: Color(0xFF366021),
+  fontWeight: FontWeight.bold,
+  fontSize: 30,
+);

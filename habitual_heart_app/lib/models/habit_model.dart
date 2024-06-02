@@ -11,6 +11,7 @@ class HabitModel {
     this.icon,
     required this.name,
     required this.checkinTimes,
+
   });
 
   factory HabitModel.fromMap(Map<String, dynamic> data) {

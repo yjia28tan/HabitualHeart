@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DailyHabitRecordModel {
+  String dailyRecordID; // PK
   String userID;
   String habitsID;
-  String dailyRecordID;
   Timestamp dateTime;
   String status;
 

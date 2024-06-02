@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:habitual_heart_app/pages/calendar_page.dart';
+import 'package:habitual_heart_app/pages/discover_page.dart';
+import 'package:habitual_heart_app/pages/habits_page.dart';
+import 'package:habitual_heart_app/pages/profile_page.dart';
 import 'package:habitual_heart_app/pages/signin_page.dart';
 import 'package:habitual_heart_app/pages/signup_page.dart';
+import 'package:habitual_heart_app/pages/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,9 +50,11 @@ class _MyAppState extends State<MyApp> {
       initialRoute: SigninPage.routeName,
       routes: {
         SigninPage.routeName: (context) => const SigninPage(),
-        // HomePage.routeName: (context) => HomePage(),
-        // UserProfile.routeName: (context) => UserProfile(),
-
+        HomePage.routeName: (context) => HomePage(),
+        CalendarPage.routeName : (context) => CalendarPage(),
+        HabitsPage.routeName : (context) => HabitsPage(),
+        DiscoverPage.routeName : (context) => DiscoverPage(),
+        ProfilePage.routeName: (context) => ProfilePage(),
       },
     );
   }

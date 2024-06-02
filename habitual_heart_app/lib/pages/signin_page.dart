@@ -15,8 +15,8 @@ class SigninPage extends StatefulWidget {
 }
 
 class _SigninPageState extends State<SigninPage> {
-  TextEditingController _emailTextController = TextEditingController();
-  TextEditingController _passwordTextController = TextEditingController();
+  TextEditingController _emailTextController = TextEditingController(text: "yijia_tan@hotmail.com");
+  TextEditingController _passwordTextController = TextEditingController(text: "123123");
 
   @override
   Widget build(BuildContext context) {
@@ -152,7 +152,7 @@ class _SigninPageState extends State<SigninPage> {
                       height: 45,
                       width: 250,
                       child:
-                      //Login Button
+                      //Sign Up Button
                       ElevatedButton.icon(
                         icon: Icon(Icons.app_registration,
                             color: Color(0xFF366021,)
