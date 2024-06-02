@@ -1,12 +1,16 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:habitual_heart_app/pages/calendar_page.dart';
 import 'package:habitual_heart_app/pages/discover_page.dart';
 import 'package:habitual_heart_app/pages/habits_page.dart';
+import 'package:habitual_heart_app/pages/privacy_policy_page.dart';
 import 'package:habitual_heart_app/pages/profile_page.dart';
 import 'package:habitual_heart_app/pages/signin_page.dart';
-import 'package:habitual_heart_app/pages/signup_page.dart';
 import 'package:habitual_heart_app/pages/home_page.dart';
+import 'package:habitual_heart_app/pages/terms_conditions_pages.dart';
+
+String? globalUID;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,6 +23,8 @@ void main() async {
       projectId: 'habitual-heart',
     ),
   );
+
+  await getUserID();
   runApp(const MyApp());
 }
 
@@ -55,7 +61,24 @@ class _MyAppState extends State<MyApp> {
         HabitsPage.routeName : (context) => HabitsPage(),
         DiscoverPage.routeName : (context) => DiscoverPage(),
         ProfilePage.routeName: (context) => ProfilePage(),
+        PrivacyPolicyPage.routeName: (context) => PrivacyPolicyPage(),
+        TermsAndConditionsPage.routeName: (context) => TermsAndConditionsPage(),
       },
     );
+  }
+}
+
+Future<void> getUserID() async {
+  try {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    User? user = auth.currentUser;
+    if (user != null) {
+      globalUID = user.uid;
+      print("User ID: ${user.uid}");
+    } else {
+      print("User is not signed in");
+    }
+  } catch (e) {
+    print("Error retrieving user ID: $e");
   }
 }

@@ -1,5 +1,3 @@
-import 'dart:js_interop';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -20,21 +18,10 @@ class _SignUpPageState extends State<SignUpPage> {
   TextEditingController _passwordTextController = TextEditingController();
   TextEditingController _confirmTextController = TextEditingController();
 
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  // FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   bool passwordConfirmed() {
     return _passwordTextController.text.trim() == _confirmTextController.text.trim();
-  }
-
-  Future<void> addDetails(String uid, String username, String email) async {
-    await FirebaseFirestore.instance.collection('users').doc(uid).set({
-      'uid': uid,
-      'username': username,
-      'email': email,
-      'birthday': null, // Optional fields, set to null initially
-      'gender': null,
-      'dailyReminder': false,
-    });
   }
 
   @override
@@ -168,29 +155,35 @@ class _SignUpPageState extends State<SignUpPage> {
                                 email: _emailTextController.text,
                                 password: _passwordTextController.text)
                                 .then((userCredential) {
-                                  String uid = userCredential.user!.uid;
-                                  addDetails(uid, _usernameTextController.text,
-                                      _emailTextController.text);
+                              FirebaseFirestore.instance.collection('users').doc(
+                                  FirebaseAuth.instance.currentUser?.uid).set({
+                                'username': username,
+                                'email': email,
+                                'dailyReminder': false,
+                              });
+                              // String uid = userCredential.user!.uid;
+                              // addDetails(uid, _usernameTextController.text,
+                              //     _emailTextController.text);
 
-                            // Send email verification
-                            userCredential.user!.sendEmailVerification();
+                              // Send email verification
+                              userCredential.user!.sendEmailVerification();
 
-                            // Notify the user that the account has been created
-                            final snackbar = SnackBar(
-                              content: Text(
-                                  "Account Created! Check your email to verify your account before signing in."),
-                              action: SnackBarAction(
-                                  label: 'OK',
-                                  onPressed: () {}
-                              ),
-                            );
-                            ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                              // Notify the user that the account has been created
+                              final snackbar = SnackBar(
+                                content: Text(
+                                    "Account Created!\n Check your email to verify your account before signing in."),
+                                action: SnackBarAction(
+                                    label: 'OK',
+                                    onPressed: () {}
+                                ),
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(snackbar);
 
-                            // Navigate to the sign-in page
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const SigninPage()));
+                              // Navigate to the sign-in page
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const SigninPage()));
                             }).catchError((error) {
                               print('Error: $error');
                               String errorMessage = '';
@@ -248,8 +241,10 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                       InkWell(
                         onTap: () {
-                          Navigator.of(context).pushNamed(
-                            SigninPage.routeName,
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const SigninPage())
                           );
                         },
                         child: const Text(

@@ -1,13 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:habitual_heart_app/pages/calendar_page.dart';
-import 'package:habitual_heart_app/pages/discover_page.dart';
-import 'package:habitual_heart_app/pages/habits_page.dart';
-import 'package:habitual_heart_app/pages/profile_page.dart';
 import 'package:intl/intl.dart';
-import '/pages/signin_page.dart';
+
+import '/pages/calendar_page.dart';
+import '/pages/discover_page.dart';
+import '/pages/habits_page.dart';
+import '/pages/profile_page.dart';
+import 'package:habitual_heart_app/main.dart';
 import '/design/font_style.dart';
 import '/widgets/navigation_bar.dart';
+import '/pages/user_profile_edit_page.dart';
 
 class HomePage extends StatefulWidget {
   static String routeName = '/HomePage';
@@ -20,6 +22,14 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    ProfilePage();
+    EditProfilePage();
+    print(globalUID);
+  }
 
   List<Widget> screens = [
     Home(),
@@ -42,15 +52,6 @@ class _HomePageState extends State<HomePage> {
         selectedIndex: selectedIndex,
         onClicked: onClicked,
       ),
-      // appBar: AppBar(
-      //   automaticallyImplyLeading: false, //disable back button
-      //   title: Center(
-      //     child: Text(
-      //       formattedDate,
-      //       style: headerText,
-      //     ),
-      //   ),
-      // ),
       body: IndexedStack(
         index: selectedIndex,
         children: screens,
