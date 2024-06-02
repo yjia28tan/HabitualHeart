@@ -1,3 +1,5 @@
+import 'dart:js_interop';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -21,19 +23,17 @@ class _SignUpPageState extends State<SignUpPage> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   bool passwordConfirmed() {
-    if (_passwordTextController.text.trim() ==
-        _confirmTextController.text.trim()) {
-      return true;
-    } else {
-      return false;
-    }
+    return _passwordTextController.text.trim() == _confirmTextController.text.trim();
   }
 
-  Future addDetails(String uid, String username, String email) async {
-    await FirebaseFirestore.instance.collection('users').add({
+  Future<void> addDetails(String uid, String username, String email) async {
+    await FirebaseFirestore.instance.collection('users').doc(uid).set({
       'uid': uid,
       'username': username,
       'email': email,
+      'birthday': null, // Optional fields, set to null initially
+      'gender': null,
+      'dailyReminder': false,
     });
   }
 
@@ -81,7 +81,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 SizedBox(
                   height: 30,
                 ),
-
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 30),
                   child: Column(
@@ -111,12 +110,10 @@ class _SignUpPageState extends State<SignUpPage> {
                         child: forTextField("Confirm Password", Icons.lock,
                             true, _confirmTextController),
                       ),
-
                       SizedBox(
                         height: 40,
                       ),
-
-                      //Sign Up Button
+                      // Sign Up Button
                       Container(
                         height: 45,
                         width: 250,
@@ -124,24 +121,20 @@ class _SignUpPageState extends State<SignUpPage> {
                           style: ElevatedButton.styleFrom(
                               backgroundColor: Color(0xFFE5FFD0)),
                           onPressed: () async {
-                            String username = _usernameTextController.text;
-                            String email = _emailTextController.text;
-                            String password = _passwordTextController.text;
+                            String username = _usernameTextController.text.trim();
+                            String email = _emailTextController.text.trim();
+                            String password = _passwordTextController.text.trim();
 
-                            if (email.isEmpty ||
-                                password.isEmpty ||
-                                username.isEmpty) {
+                            if (username.isEmpty || email.isEmpty || password.isEmpty) {
                               showDialog(
                                 context: context,
                                 builder: (context) => AlertDialog(
                                   title: const Text('Registration Failed'),
-                                  content:
-                                  const Text('Please fill in all details.'),
+                                  content: const Text('Please fill in all details.'),
                                   actions: [
                                     TextButton(
                                       onPressed: () {
-                                        Navigator.pop(
-                                            context); // Close the dialog
+                                        Navigator.pop(context); // Close the dialog
                                       },
                                       child: Text('OK'),
                                     ),
@@ -159,8 +152,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   actions: [
                                     TextButton(
                                       onPressed: () {
-                                        Navigator.pop(
-                                            context); // Close the dialog
+                                        Navigator.pop(context); // Close the dialog
                                       },
                                       child: Text('OK'),
                                     ),
@@ -170,39 +162,37 @@ class _SignUpPageState extends State<SignUpPage> {
                               return;
                             }
 
-                            //register new user with email and password
+                            // Register new user with email and password
                             FirebaseAuth.instance
                                 .createUserWithEmailAndPassword(
                                 email: _emailTextController.text,
                                 password: _passwordTextController.text)
-                                .then((userCredential) async {
-                              // Extract user ID
-                              String uid = userCredential.user!.uid;
+                                .then((userCredential) {
+                                  String uid = userCredential.user!.uid;
+                                  addDetails(uid, _usernameTextController.text,
+                                      _emailTextController.text);
 
-                              // Send email verification
-                              await userCredential.user!.sendEmailVerification();
+                            // Send email verification
+                            userCredential.user!.sendEmailVerification();
 
-                              // Add user details to Firestore
-                              addDetails(uid, _usernameTextController.text,
-                                  _emailTextController.text);
+                            // Notify the user that the account has been created
+                            final snackbar = SnackBar(
+                              content: Text(
+                                  "Account Created! Check your email to verify your account before signing in."),
+                              action: SnackBarAction(
+                                  label: 'OK',
+                                  onPressed: () {}
+                              ),
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(snackbar);
 
-                              //To notify the user account have created
-                              final snackbar = SnackBar(
-                                content: Text(
-                                    "Account Created! Check Email to verify your account before Sign in. \nWelcome $username"),
-                                action: SnackBarAction(
-                                    label: 'OK', onPressed: () {}),
-                              );
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(snackbar);
-
-                              // Navigate to the sign-in page
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const SigninPage()));
+                            // Navigate to the sign-in page
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const SigninPage()));
                             }).catchError((error) {
-                              //Error occurred when register
+                              print('Error: $error');
                               String errorMessage = '';
 
                               if (error is FirebaseAuthException) {
@@ -211,7 +201,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   errorMessage =
                                   'Email is already registered. Please use a different email.';
                                 } else if (error.code == 'weak-password') {
-                                  // Weak Password entered
+                                  // Weak password entered
                                   errorMessage =
                                   'Password is too weak. Please use a different password.';
                                 } else if (error.code == 'invalid-email') {
@@ -220,18 +210,17 @@ class _SignUpPageState extends State<SignUpPage> {
                                 } else {
                                   // Other FirebaseAuthException errors
                                   errorMessage =
-                                  'An Error Occurred\nError: ${error.code.toString()}';
+                                  'An error occurred\nError: ${error.message}';
                                 }
                               } else {
                                 // Other errors
-                                errorMessage = error.code.toString();
+                                errorMessage = 'An unknown error occurred.';
                               }
 
                               showDialog(
                                   context: context,
                                   builder: (context) => AlertDialog(
-                                    title:
-                                    const Text("Registration Failed"),
+                                    title: const Text("Registration Failed"),
                                     content: Text(errorMessage),
                                     actions: [
                                       TextButton(
@@ -244,19 +233,19 @@ class _SignUpPageState extends State<SignUpPage> {
                                   ));
                             });
                           },
-                          icon: const Icon(Icons.check_circle,
-                              color: Color(0xFF366021,)
+                          icon: const Icon(
+                            Icons.check_circle,
+                            color: Color(0xFF366021),
                           ),
                           label: Text(
                             'Sign Up',
-                            style: signinText
+                            style: signinText,
                           ),
                         ),
                       ),
                       SizedBox(
                         height: 8,
                       ),
-
                       InkWell(
                         onTap: () {
                           Navigator.of(context).pushNamed(
