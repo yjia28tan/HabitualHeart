@@ -112,9 +112,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   // 'More' text
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Text(
-                      'More',
-                      style: TextStyle(fontSize: 18),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'More',
+                        style: homepageText,
+                      ),
                     ),
                   ),
                   SizedBox(height: 15),

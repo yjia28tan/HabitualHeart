@@ -141,7 +141,7 @@ class _SigninPageState extends State<SigninPage> {
                         ),
                         label: Text(
                           'Sign In',
-                          style: signinText,
+                          style: homeSubHeaderText,
                         ),
                       ),
                     ),
@@ -165,7 +165,7 @@ class _SigninPageState extends State<SigninPage> {
                         },
                         label: Text(
                           'Sign Up',
-                          style: signinText,
+                          style: homeSubHeaderText,
                         ),
                       ),
                     ),

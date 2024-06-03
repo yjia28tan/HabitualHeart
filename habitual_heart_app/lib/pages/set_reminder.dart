@@ -21,21 +21,28 @@ class _SetReminderState extends State<SetReminder> {
   void fetchReminderStatus() async {
     final uid = globalUID;
     if (uid != null) {
-      final userData = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .get();
-      if (userData.exists) {
-        setState(() {
-          _dailyReminder = userData.get('dailyReminder') ?? false;
-          String? reminderTimeString = userData.get('reminderTime');
-          if (reminderTimeString != null) {
-            _reminderTime = TimeOfDay(
-              hour: int.parse(reminderTimeString.split(':')[0]),
-              minute: int.parse(reminderTimeString.split(':')[1]),
-            );
-          }
-        });
+      try {
+        final userData = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .get();
+        if (userData.exists) {
+          setState(() {
+            _dailyReminder = userData.get('dailyReminder') ?? false;
+            String? reminderTimeString = userData.get('reminderTime');
+            if (reminderTimeString != null && reminderTimeString.contains(':')) {
+              final parts = reminderTimeString.split(':');
+              final hour = int.tryParse(parts[0]);
+              final minute = int.tryParse(parts[1]);
+              if (hour != null && minute != null) {
+                _reminderTime = TimeOfDay(hour: hour, minute: minute);
+              }
+            }
+          });
+        }
+      } catch (e) {
+        print('Error fetching reminder status: $e');
+        // Optionally, you can show a user-friendly error message here
       }
     }
   }
@@ -99,7 +106,7 @@ class _SetReminderState extends State<SetReminder> {
       activeColor: Color(0xFF366021),
       activeTrackColor: Color(0xFFE5FFD0).withOpacity(0.7),
       inactiveThumbColor: Color(0xFFE5FFD0).withOpacity(0.7),
-      inactiveTrackColor: Colors.grey,
+      inactiveTrackColor: Colors.blueGrey[700],
     );
   }
 }

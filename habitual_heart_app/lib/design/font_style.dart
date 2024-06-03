@@ -8,7 +8,7 @@ final TextStyle signinTitle = GoogleFonts.leagueSpartan(
   fontSize: 48,
 );
 
-final TextStyle signinText = GoogleFonts.leagueSpartan(
+final TextStyle homeSubHeaderText = GoogleFonts.leagueSpartan(
   color: Color(0xFF366021),
   fontSize: 18,
   fontWeight: FontWeight.bold,
@@ -28,7 +28,7 @@ final TextStyle headerText = GoogleFonts.leagueSpartan(
 
 const TextStyle homepageText = TextStyle(
   color: Colors.black87,
-  fontSize: 20,
+  fontSize: 18,
   fontWeight: FontWeight.bold,
 );
 

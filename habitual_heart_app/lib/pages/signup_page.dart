@@ -234,7 +234,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           ),
                           label: Text(
                             'Sign Up',
-                            style: signinText,
+                            style: homeSubHeaderText,
                           ),
                         ),
                       ),

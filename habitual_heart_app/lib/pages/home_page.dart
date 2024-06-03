@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
+import 'package:flutter_emoji_feedback/flutter_emoji_feedback.dart';
 import '/pages/calendar_page.dart';
 import '/pages/discover_page.dart';
 import '/pages/habits_page.dart';
@@ -22,6 +22,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int selectedIndex = 0;
+
 
   @override
   void initState() {
@@ -68,6 +69,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String formattedDate = DateFormat('EEEE, MMMM d, yyyy').format(DateTime.now());
+  String selectedEmoji = '';
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +83,22 @@ class _HomeState extends State<Home> {
           ),
         ),
       ),
+
+      // implement the mood tracking
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'How are you feeling today?',
+            style: homepageText,
+          ),
+          SizedBox(height: 20),
+          // Emoji
+          SizedBox(height: 20),
+
+        ],
+      ),
+
     );
   }
 }
