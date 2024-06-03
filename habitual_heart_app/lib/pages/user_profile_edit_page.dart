@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:habitual_heart_app/pages/profile_page.dart';
 import '/main.dart';
 import '/design/font_style.dart';
 import '/design/font_style.dart';
@@ -20,65 +21,66 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   TextEditingController _usernameTextController = TextEditingController();
 
-  late String _username = '';
-  late String _email = '';
+  late String username = '';
+  late String email = '';
   late String _gender = '';
   late String _selectedGender = '';
   late String _birthdate = '';
   late String _setBirthdate = '';
   late DateTime _selectedDate;
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  // Sign out function
-  Future<void> signOut() async {
-    await _auth.signOut();
-    Navigator.of(context).pushNamed(SigninPage.routeName);
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = DateTime.now();
+    fetchUserData();
   }
 
   // Fetch user data from Firestore
-  Future fetchUserData() async {
-    try {
-      final uid = _auth.currentUser?.uid;
-      if (uid != null) {
-        final userSnapshot = await FirebaseFirestore.instance
-            .collection('users')
-            .where('uid', isEqualTo: uid)
-            .limit(1)
-            .get();
-        if (userSnapshot.docs.isNotEmpty) {
-          final userData = userSnapshot.docs.first.data();
+  void fetchUserData() {
+    final uid = globalUID;
+    if (uid != null) {
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .get().then((userData) {
+        if (userData.exists) {
           setState(() {
-            _username = userData['username'] ?? '';
-            _email = userData['email'] ?? '';
-            _gender = userData['gender'] ?? '';
-            _birthdate = userData['birthdate'] ?? '';
+            print(userData);
+            username = userData.get('username')?? '';
+            email = userData.get('email')?? '';
+            _gender = userData.get('gender')?? '';
+            _birthdate = userData.get('birthdate')?? '';
             _selectedGender = _gender;
-            _usernameTextController.text = _username;
+            _usernameTextController.text = username;
             _setBirthdate = _birthdate;
           });
+          print(userData);
+        } else {
+          print('User data not found');
         }
-      }
-    } catch (error) {
-      print('Error fetching user data: $error');
+          }).catchError((error) {
+              print('Error fetching user data: $error');
+          });
+    } else {
+      print('globalUID is null');
     }
   }
 
   // Update user data
   Future<void> updateUserData() async {
     try {
-      final uid = _auth.currentUser?.uid;
+      final uid = globalUID;
       if (uid != null) {
         final userQuerySnapshot = await FirebaseFirestore.instance
             .collection('users')
-            .where('uid', isEqualTo: uid)
-            .limit(1)
+            .doc(uid)
             .get();
 
-        if (userQuerySnapshot.docs.isNotEmpty) {
-          final userDoc = userQuerySnapshot.docs.first;
+        if (userQuerySnapshot.exists) {
+          // final userDoc = userQuerySnapshot.docs.first;
           final userRef =
-          FirebaseFirestore.instance.collection('users').doc(userDoc.id);
+          FirebaseFirestore.instance.collection('users').doc(userQuerySnapshot.id);
 
           await userRef.update({
             'username': _usernameTextController.text,
@@ -89,6 +91,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('User data updated successfully')),
           );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ProfilePage()),
+          );
+
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('User not found.')),
@@ -105,40 +112,40 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   // For date picker
   Future<void> _selectDate() async {
+    final initialDate = _birthdate.isNotEmpty
+        ? DateFormat('yyyy-MM-dd').parse(_birthdate)
+        : DateTime.now();
+
     final DateTime? picked = await showDatePicker(
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: Theme.of(context).copyWith(
               colorScheme: ColorScheme.light(
-                primary: Color(0xFFE5FFD0),
+                primary: Color(0xFF366021),
                 onPrimary: Colors.white,
                 onSurface: Colors.black,
               ),
               textButtonTheme: TextButtonThemeData(
                   style: TextButton.styleFrom(
                     foregroundColor: Color(0xFF366021),
-                  ))),
+                  )
+              )
+          ),
           child: child!,
         );
       },
       context: context,
-      initialDate: _selectedDate,
+      initialDate: initialDate,
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
     );
-    if (picked != null && picked != _selectedDate) {
+    if (picked != null && picked != initialDate) {
       setState(() {
         _selectedDate = picked;
         _setBirthdate = DateFormat('yyyy-MM-dd').format(_selectedDate);
+        _birthdate = _setBirthdate;
       });
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedDate = DateTime.now();
-    fetchUserData();
   }
 
   @override
@@ -157,7 +164,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               },
             ),
             title: Text(
-              "Profile",
+              "Edit Profile",
               style: headerText,
             ),
           ),
@@ -209,7 +216,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           Icons.email,
                           false,
                           true,
-                          _email,
+                          email,
                         ),
                       ],
                     ),
@@ -272,12 +279,29 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             ),
                           ),
                           SizedBox(height: 8),
-                          forReadTextField(
-                            "Gender",
-                            Icons.transgender,
-                            false,
-                            true,
-                            _gender,
+                          Row(
+                            children: [
+                              Radio<String>(
+                                value: 'Male',
+                                groupValue: _selectedGender,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedGender = value!;
+                                  });
+                                },
+                              ),
+                              const Text('Male'),
+                              Radio<String>(
+                                value: 'Female',
+                                groupValue: _selectedGender,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedGender = value!;
+                                  });
+                                },
+                              ),
+                              const Text('Female'),
+                            ],
                           ),
                         ],
                       ),
@@ -298,55 +322,43 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           ),
                         ),
                         SizedBox(height: 8),
-                        if (_birthdate.isEmpty)
-                          InkWell(
-                            onTap: () {
-                              _selectDate();
-                            },
-                            child: Container(
-                              height: 50,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              padding:
-                              const EdgeInsets.symmetric(horizontal: 10),
-                              alignment: Alignment.centerLeft,
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.calendar_month,
-                                    color: Colors.black26,
-                                  ),
-                                  if (_setBirthdate == '')
-                                    Text(
-                                      " Select your birthdate",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                      ),
-                                    )
-                                  else
-                                    Text(
-                                      " " + _setBirthdate,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                ],
-                              ),
+                        InkWell(
+                          onTap: () {
+                            _selectDate();
+                          },
+                          child: Container(
+                            height: 50,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Color(0xFFE5FFD0,).withOpacity(0.7),
+                              borderRadius: BorderRadius.circular(15.0),
                             ),
-                          )
-                        else
-                          Container(
-                            child: forReadTextField(
-                              "Birthdate",
-                              Icons.calendar_today,
-                              false,
-                              true,
-                              _birthdate,
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.calendar_month,
+                                  color: Colors.black26,
+                                ),
+                                if (_setBirthdate == '')
+                                  Text(
+                                    " Select your birthdate",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                    ),
+                                  )
+                                else
+                                  Text(
+                                    " " + _setBirthdate,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
+                        )
                       ],
                     ),
                   ),

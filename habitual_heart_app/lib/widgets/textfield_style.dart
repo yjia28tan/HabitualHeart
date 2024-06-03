@@ -43,7 +43,7 @@ TextField forReadTextField(String text, IconData icon, bool isPasswordType,
       labelStyle: TextStyle(color: Colors.white.withOpacity(0.9)),
       filled: true,
       floatingLabelBehavior: FloatingLabelBehavior.never,
-      fillColor: Colors.red.shade50.withOpacity(0.7),
+      fillColor: Color(0xFFE5FFD0).withOpacity(0.7),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15.0),
         borderSide: const BorderSide(width: 0, style: BorderStyle.none),

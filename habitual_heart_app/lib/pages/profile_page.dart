@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:habitual_heart_app/pages/set_reminder.dart';
 import '/main.dart';
 import '/design/font_style.dart';
 import '/design/font_style.dart';
@@ -23,6 +24,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   String? username;
   String? email;
+  bool? dailyReminder;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -35,6 +37,7 @@ class _ProfilePageState extends State<ProfilePage> {
   // Sign out function
   Future<void> signOut() async {
     await _auth.signOut();
+    globalUID = null;
     Navigator.of(context).pushNamed(SigninPage.routeName);
   }
 
@@ -49,6 +52,7 @@ class _ProfilePageState extends State<ProfilePage> {
           setState(() {
             username = userData['username'];
             email = userData['email'];
+            dailyReminder = userData['dailyReminder'];
           });
         }).catchError((error) {
           print('Error fetching user data: $error');
@@ -85,13 +89,15 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                   ),
-                  // SizedBox(height: 20),
                   // Username
                   Text(
                     '$username!',
                     style: userName_display,
                   ),
                   SizedBox(height: 20),
+                  // set reminder button
+                  SetReminder(),
+                  SizedBox(height: 15),
                   // Elevated Buttons
                   // edit profile
                   profile_Button(
@@ -101,13 +107,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       context,
                       MaterialPageRoute(builder: (context) => EditProfilePage()),
                     );
-                  }),
-                  SizedBox(height: 15),
-                  // set reminder
-                  profile_Button(
-                      'Set Reminder',
-                      Icons.arrow_forward_ios, () {
-                    // TODO: Implement set reminder feature
                   }),
                   SizedBox(height: 20),
                   // 'More' text
@@ -119,7 +118,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   SizedBox(height: 15),
-                  // set reminder
+                  // privacy policy
                   profile_Button(
                       'Privacy Policy',
                       Icons.arrow_forward_ios, () {
@@ -129,6 +128,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     );
                   }),
                   SizedBox(height: 15),
+                  // t&c
                   profile_Button(
                       'Terms and Conditions',
                       Icons.arrow_forward_ios, () {
@@ -146,7 +146,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         'Log Out',
                         Icons.logout, () {
                           signOut();
-                          Navigator.of(context).pop();
                         }),
                   ),
                 ],

@@ -159,6 +159,8 @@ class _SignUpPageState extends State<SignUpPage> {
                                   FirebaseAuth.instance.currentUser?.uid).set({
                                 'username': username,
                                 'email': email,
+                                'gender': null,
+                                'birthdate': null,
                                 'dailyReminder': false,
                               });
                               // String uid = userCredential.user!.uid;
