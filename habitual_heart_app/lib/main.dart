@@ -1,6 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 import 'package:habitual_heart_app/pages/calendar_page.dart';
 import 'package:habitual_heart_app/pages/discover_page.dart';
 import 'package:habitual_heart_app/pages/habits_page.dart';
@@ -11,6 +14,8 @@ import 'package:habitual_heart_app/pages/home_page.dart';
 import 'package:habitual_heart_app/pages/terms_conditions_pages.dart';
 
 String? globalUID;
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+FlutterLocalNotificationsPlugin();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +28,14 @@ void main() async {
       projectId: 'habitual-heart',
     ),
   );
+
+  // Initialize notifications
+  tz.initializeTimeZones();
+  tz.setLocalLocation(tz.getLocation('Malaysia/KualaLumpur'));
+  const AndroidInitializationSettings initializationSettingsAndroid =
+  AndroidInitializationSettings('@mipmap/ic_launcher');
+  const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
   await getUserID();
   runApp(const MyApp());

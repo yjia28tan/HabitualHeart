@@ -273,7 +273,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         children: [
                           const Text(
                             'Gender',
-                            style: homepageText
+                            style: homepageText,
                           ),
                           SizedBox(height: 8),
                           Row(

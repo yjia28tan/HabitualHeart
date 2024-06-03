@@ -162,6 +162,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 'gender': null,
                                 'birthdate': null,
                                 'dailyReminder': false,
+                                'reminderTime': null,
                               });
                               // String uid = userCredential.user!.uid;
                               // addDetails(uid, _usernameTextController.text,

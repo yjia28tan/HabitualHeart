@@ -43,3 +43,9 @@ final TextStyle userName_display = GoogleFonts.leagueSpartan(
   fontWeight: FontWeight.bold,
   fontSize: 30,
 );
+
+const TextStyle moodText = TextStyle(
+  color: Color(0xFF366021),
+  fontSize: 15,
+  fontWeight: FontWeight.bold,
+);
