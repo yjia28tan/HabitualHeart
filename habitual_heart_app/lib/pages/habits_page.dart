@@ -26,6 +26,14 @@ class _HabitsPageState extends State<HabitsPage> {
           style: headerText,
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Color(0xFF366021),
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
+        onPressed: () {},
+      )
     );
   }
 }
