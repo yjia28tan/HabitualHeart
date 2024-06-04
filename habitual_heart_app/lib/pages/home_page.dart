@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -6,11 +7,11 @@ import '/pages/calendar_page.dart';
 import '/pages/discover_page.dart';
 import '/pages/habits_page.dart';
 import '/pages/profile_page.dart';
-import '/pages/set_reminder.dart;
 import 'package:habitual_heart_app/main.dart';
 import '/design/font_style.dart';
 import '/widgets/navigation_bar.dart';
 import '/pages/user_profile_edit_page.dart';
+import 'mood_details_page.dart';
 import 'mood_entry_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -30,8 +31,8 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     ProfilePage();
     EditProfilePage();
-    _scheduleNotification();
     DiscoverPage();
+
     print(globalUID);
   }
 
@@ -64,54 +65,141 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class _scheduleNotification {
-}
+
+// Global Variables
+String? todayMood;
+String? useruid;
+Icon? todayMoodIcon;
 
 class Home extends StatefulWidget {
+
+
   @override
   State<Home> createState() => _HomeState();
 }
+
 
 class _HomeState extends State<Home> {
   String formattedDate = DateFormat('EEEE, MMMM d, yyyy').format(DateTime.now());
   String selectedEmoji = '';
 
   @override
+  void initState() {
+    super.initState();
+    _fetchTodayMood();
+
+  }
+
+  Future<void> _fetchTodayMood() async {
+    try {
+      // Fetch today's mood from Firebase
+      final today = DateTime.now();
+
+      // Calculate the start and end of the day
+      final startOfDay = DateTime(today.year, today.month, today.day);
+      final endOfDay = startOfDay.add(Duration(days: 1));
+
+      print(FirebaseAuth.instance.currentUser?.uid);
+
+      final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('moodRecord')
+          .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+          .where('timestamp', isGreaterThanOrEqualTo: startOfDay)
+          .where('timestamp', isLessThan: endOfDay)
+          .orderBy('timestamp', descending: true) // Order by timestamp in descending order
+          .limit(1) // Limit to 1 document
+          .get();
+
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final doc = querySnapshot.docs.first;
+        setState(() {
+          todayMood = doc['mood'];
+          useruid = doc['uid'];
+          print("Today Mood: $todayMood");
+          _updateMoodIcon(todayMood!); // Update the icon based on today's mood
+        });
+      } else {
+        setState(() {
+          todayMood = null; // Set todayMood to null
+          useruid = null; // Assuming you want to reset useruid as well
+        });
+        print('No mood record found for today');
+      }
+    } catch (error) {
+      print('Error fetching today\'s mood: $error');
+    }
+  }
+
+  void _updateMoodIcon(String mood) {
+    switch (mood) {
+      case 'Happy':
+        todayMoodIcon = Icon(Icons.sentiment_very_satisfied);
+        break;
+      case 'Content':
+        todayMoodIcon = Icon(Icons.sentiment_satisfied);
+        break;
+      case 'Neutral':
+        todayMoodIcon = Icon(Icons.sentiment_neutral);
+        break;
+      case 'Sad':
+        todayMoodIcon = Icon(Icons.sentiment_dissatisfied);
+        break;
+      case 'Angry':
+        todayMoodIcon = Icon(Icons.sentiment_very_dissatisfied);
+        break;
+      default:
+        todayMoodIcon = null; // Set to null if mood is not recognized
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false, // disable back button
-          title: Text(
-            "Home",
-            style: headerText,
-          ),
+      appBar: AppBar(
+        automaticallyImplyLeading: false, // Disable back button
+        title: Text(
+          "Home",
+          style: headerText,
         ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0),
-                  child: Text(
-                    'How are you feeling today?',
-                    style: homeSubHeaderText,
-                  ),
-                ),
-                // Emoji selection row
-                MoodRow(
-                  onMoodSelected: (mood) {
-                    setState(() {
-                      selectedEmoji = mood;
-                    });
-                  },
-                ),
-              ],
+            Container(
+              child: Column(
+                children: [
+                  if (todayMood != null) ...[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0),
+                      child: Text(
+                        "Today's Mood",
+                        style: homeSubHeaderText,
+                      ),
+                    ),
+                    _buildMoodDisplayContainer(),
+                  ] else ...[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0),
+                      child: Text(
+                        'How are you feeling today?',
+                        style: homeSubHeaderText,
+                      ),
+                    ),
+                    MoodRow(
+                      onMoodSelected: (mood) {
+                        setState(() {
+                          selectedEmoji = mood;
+                        });
+                      },
+                    ),
+                  ],
+                ],
+              ),
             ),
 
             SizedBox(height: 20),
-
             // Habits column
             Padding(
               padding: const EdgeInsets.fromLTRB(20.0, 2.0, 20.0, 12.0),
@@ -130,14 +218,51 @@ class _HomeState extends State<Home> {
                         ],
                       ),
                     ),
-
                   ),
                   SizedBox(height: 10.0),
-
                 ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMoodDisplayContainer() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MoodDetailsPage(
+              mood: todayMood!,
+            ),
+          ),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20.0,12.0,20.0,10.0),
+        child: Container(
+          height: 120,
+          decoration: BoxDecoration(
+            color: Color(0xFFE5FFD0).withOpacity(0.3),
+            border: Border.all(
+              color: Color(0xFF366021),
+              width: 2.0,
+            ),
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              todayMoodIcon ?? Container(),
+              Text(
+                todayMood!,
+                style: TextStyle(fontSize: 24, color: Color(0xFF366021)),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -156,7 +281,9 @@ class MoodRow extends StatelessWidget {
       child: Column(
         children: [
           Container(
+            height: 120,
             decoration: BoxDecoration(
+
               color: Color(0xFFE5FFD0).withOpacity(0.3), // Background color
               border: Border.all(
                 color: Color(0xFF366021), // Border color

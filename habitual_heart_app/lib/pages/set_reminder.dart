@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 import '../main.dart';
 
 class SetReminder extends StatefulWidget {
@@ -16,6 +18,7 @@ class _SetReminderState extends State<SetReminder> {
   void initState() {
     super.initState();
     fetchReminderStatus();
+    // _scheduleNotification();
   }
 
   void fetchReminderStatus() async {
@@ -51,6 +54,23 @@ class _SetReminderState extends State<SetReminder> {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: _reminderTime ?? TimeOfDay.now(),
+        builder: (BuildContext context, Widget? child) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+                colorScheme: ColorScheme.light(
+                  primary: Color(0xFF366021),
+                  onPrimary: Colors.white,
+                  onSurface: Colors.black,
+                ),
+                textButtonTheme: TextButtonThemeData(
+                    style: TextButton.styleFrom(
+                      foregroundColor: Color(0xFF366021),
+                    )
+                )
+            ),
+            child: child!,
+          );
+        }
     );
     if (picked != null && picked != _reminderTime) {
       setState(() {
@@ -70,12 +90,55 @@ class _SetReminderState extends State<SetReminder> {
     }
   }
 
-  void _scheduleNotification() {
-    if (_dailyReminder && _reminderTime != null) {
-      // Schedule notification logic here
-      // This is platform-specific; you can use plugins like flutter_local_notifications for this
-    }
-  }
+  // void _scheduleNotification() async {
+  //   if (_dailyReminder && _reminderTime != null) {
+  //     final now = tz.TZDateTime.now(tz.local);
+  //     final scheduledDate = tz.TZDateTime(
+  //       tz.local,
+  //       now.year,
+  //       now.month,
+  //       now.day,
+  //       _reminderTime!.hour,
+  //       _reminderTime!.minute,
+  //     );
+  //     const AndroidNotificationDetails androidPlatformChannelSpecifics =
+  //     AndroidNotificationDetails(
+  //       'daily_reminder_channel',
+  //       'Daily Reminder',
+  //       channelDescription: 'Daily reminder notifications',
+  //       importance: Importance.max,
+  //       priority: Priority.high,
+  //     );
+  //
+  //     const NotificationDetails platformChannelSpecifics = NotificationDetails(
+  //       android: androidPlatformChannelSpecifics,
+  //     );
+  //
+  //     await flutterLocalNotificationsPlugin.zonedSchedule(
+  //       0,
+  //       'Daily Reminder',
+  //       'This is your daily reminder!',
+  //       _nextInstanceOfTime(scheduledDate),
+  //       platformChannelSpecifics,
+  //       androidAllowWhileIdle: true,
+  //       uiLocalNotificationDateInterpretation:
+  //       UILocalNotificationDateInterpretation.absoluteTime,
+  //       matchDateTimeComponents: DateTimeComponents.time,
+  //     );
+  //   }
+  // }
+  //
+  // tz.TZDateTime _nextInstanceOfTime(tz.TZDateTime scheduledDate) {
+  //   final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+  //   if (scheduledDate.isBefore(now)) {
+  //     scheduledDate = scheduledDate.add(const Duration(days: 1));
+  //   }
+  //   return scheduledDate;
+  // }
+  //
+  // void _cancelNotification() async {
+  //   await flutterLocalNotificationsPlugin.cancel(0);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -109,4 +172,7 @@ class _SetReminderState extends State<SetReminder> {
       inactiveTrackColor: Colors.blueGrey[700],
     );
   }
+
+
+
 }

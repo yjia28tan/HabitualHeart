@@ -5,6 +5,9 @@ import '../main.dart';
 import '/design/font_style.dart';
 import 'home_page.dart';
 
+IconData? selectedMoodIcon;
+String? newSelectedMood;
+
 class MoodEntryPage extends StatefulWidget {
   final String selectedMood;
 
@@ -15,7 +18,6 @@ class MoodEntryPage extends StatefulWidget {
 }
 
 class _MoodEntryPageState extends State<MoodEntryPage> {
-  IconData? selectedMoodIcon;
   DateTime selectedDateTime = DateTime.now();
   TextEditingController _descriptionController = TextEditingController();
 
@@ -47,7 +49,15 @@ class _MoodEntryPageState extends State<MoodEntryPage> {
   void _clearFields() {
     _descriptionController.clear();
     selectedMoodIcon = null;
+    newSelectedMood = null;
     selectedDateTime = DateTime.now();
+  }
+
+  void _setSelectedMoodIcon(IconData icon, String label) {
+    setState(() {
+      selectedMoodIcon = icon;
+      newSelectedMood = label;
+    });
   }
 
   @override
@@ -76,8 +86,10 @@ class _MoodEntryPageState extends State<MoodEntryPage> {
             children: [
               GestureDetector(
                 onTap: () {
-                  selectedMoodIcon = null;
-                  _showMoodSelectionModalBottomSheet(context);
+                  setState(() {
+                    _showMoodSelectionModalBottomSheet(context);
+                    print(newSelectedMood);
+                  });
                 },
                 child: Icon(
                   selectedMoodIcon,
@@ -206,8 +218,8 @@ class _MoodEntryPageState extends State<MoodEntryPage> {
                     Map<String, dynamic> moodRecord = {
                       'uid': globalUID, // Assuming you have globalUID defined somewhere
                       'moodid': moodId,
-                      'mood': widget.selectedMood, // Assuming selectedMood is passed to the widget
-                      'timestamp': selectedDateTime, // Assuming selectedDateTime is the timestamp
+                      'mood': newSelectedMood == null ? widget.selectedMood : newSelectedMood, // Assuming selectedMood is passed to the widget
+                      'timestamp': selectedDateTime,
                       'description': _descriptionController.text.trim(), // Assuming _descriptionController is a TextEditingController for the description TextField
                     };
 
@@ -272,11 +284,10 @@ class _MoodEntryPageState extends State<MoodEntryPage> {
       leading: Icon(icon, color: Color(0xFF366021)),
       title: Text(label, style: TextStyle(color: Color(0xFF366021))),
       onTap: () {
-        selectedMoodIcon = null;
-        setState(() {
-          selectedMoodIcon = icon;
-          print(label);
-        });
+        // selectedMood = null;
+        _setSelectedMoodIcon(icon, label); // Update the parent state
+        newSelectedMood = label;
+        print(newSelectedMood);
         Navigator.pop(context); // Close the modal bottom sheet
       },
     );

@@ -14,8 +14,8 @@ import 'package:habitual_heart_app/pages/home_page.dart';
 import 'package:habitual_heart_app/pages/terms_conditions_pages.dart';
 
 String? globalUID;
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-FlutterLocalNotificationsPlugin();
+// final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+// FlutterLocalNotificationsPlugin();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,15 +29,13 @@ void main() async {
     ),
   );
 
-  // Initialize notifications
-  tz.initializeTimeZones();
-  tz.setLocalLocation(tz.getLocation('Malaysia/KualaLumpur'));
-  const AndroidInitializationSettings initializationSettingsAndroid =
-  AndroidInitializationSettings('@mipmap/ic_launcher');
-  const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-
-  await getUserID();
+  // // Initialize notifications
+  // tz.initializeTimeZones();
+  // tz.setLocalLocation(tz.getLocation('Malaysia/KualaLumpur'));
+  // const AndroidInitializationSettings initializationSettingsAndroid =
+  // AndroidInitializationSettings('@mipmap/ic_launcher');
+  // const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+  // await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   runApp(const MyApp());
 }
 
@@ -78,20 +76,5 @@ class _MyAppState extends State<MyApp> {
         TermsAndConditionsPage.routeName: (context) => TermsAndConditionsPage(),
       },
     );
-  }
-}
-
-Future<void> getUserID() async {
-  try {
-    FirebaseAuth auth = FirebaseAuth.instance;
-    User? user = auth.currentUser;
-    if (user != null) {
-      globalUID = user.uid;
-      print("User ID: ${user.uid}");
-    } else {
-      print("User is not signed in");
-    }
-  } catch (e) {
-    print("Error retrieving user ID: $e");
   }
 }

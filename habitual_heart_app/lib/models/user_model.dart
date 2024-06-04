@@ -6,6 +6,8 @@ class UserModel extends ChangeNotifier {
   String email;
   String? username;
   DateTime? birthDate;
+  bool? dailyReminder;
+  DateTime? reminderTime;
 
   // Getter for UID
   String get uid => _uid;
@@ -22,6 +24,8 @@ class UserModel extends ChangeNotifier {
     required this.email,
     this.birthDate,
     required this.username,
+    required this.dailyReminder,
+    this.reminderTime,
   }) : _uid = uid;
 
   // Factory method to create a UserModel from a Map
@@ -33,6 +37,9 @@ class UserModel extends ChangeNotifier {
       birthDate: data['birthDate'] != null
           ? (data['birthDate'] as Timestamp).toDate()
           : null,
+      dailyReminder: data['email'],
+      reminderTime: data['reminderTime'] != null
+          ? (data['reminderTime'] as Timestamp).toDate(): null,
     );
   }
 
@@ -43,6 +50,8 @@ class UserModel extends ChangeNotifier {
       'email': email,
       'username': username,
       'birthDate': birthDate,
+      'dailyReminder': dailyReminder,
+      'reminderTime': reminderTime,
     };
   }
 }

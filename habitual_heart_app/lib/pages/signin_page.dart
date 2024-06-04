@@ -4,6 +4,7 @@ import '/design/font_style.dart';
 import 'package:habitual_heart_app/widgets/textfield_style.dart';
 import '/pages/signup_page.dart';
 import '/pages/home_page.dart';
+import 'package:habitual_heart_app/main.dart';
 
 class SigninPage extends StatefulWidget {
   static String routeName = '/LoginPage';
@@ -106,6 +107,7 @@ class _SigninPageState extends State<SigninPage> {
 
                             // Check if the email is verified
                             if (userCredential.user!.emailVerified) {
+                              globalUID = userCredential.user!.uid;
                               // Navigate to the home page
                               Navigator.push(
                                 context,
