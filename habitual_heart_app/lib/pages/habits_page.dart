@@ -6,7 +6,6 @@ import 'package:habitual_heart_app/main.dart';
 import 'package:habitual_heart_app/models/habit_model.dart';
 import 'package:habitual_heart_app/models/habit_record_model.dart';
 import 'package:habitual_heart_app/widgets/habit_card.dart';
-import '/design/font_style.dart';
 import '/widgets/textfield_style.dart';
 import '/pages/signin_page.dart';
 import '/pages/new_habit_page.dart';
@@ -14,7 +13,7 @@ import '/pages/new_habit_page.dart';
 class HabitsPage extends StatefulWidget {
   static String routeName = '/HabitsPage';
 
-  const HabitsPage({Key? key}) : super(key: key);
+  const HabitsPage({super.key});
 
   @override
   State<HabitsPage> createState() => _HabitsPageState();
@@ -42,9 +41,6 @@ class _HabitsPageState extends State<HabitsPage> {
 
       for (QueryDocumentSnapshot doc in habitSnapshot.docs) {
         String habitID = doc.id;
-        print("HabitIdddddddddddddddddddddddddd");
-        print(habitID);
-        print(doc.data());
         HabitModel habit =
             HabitModel.fromMap(habitID, doc.data() as Map<String, dynamic>);
         habits.add(habit);
@@ -56,19 +52,6 @@ class _HabitsPageState extends State<HabitsPage> {
             .orderBy('date', descending: true)
             .limit(1)
             .get();
-
-        //   if (recordSnapshot.docs.isNotEmpty) {
-        //     for (QueryDocumentSnapshot recordDoc in recordSnapshot.docs) {
-        //       String habitRecordID = recordDoc.id;
-        //       latestRecordsMap[habitID] = HabitRecordModel.fromMap(
-        //           habitRecordID, recordDoc.data() as Map<String, dynamic>);
-        //       print("Habit Record Document Data: ${recordDoc.data()}");
-        //     }
-        //   } else {
-        //     latestRecordsMap[habitID] = null;
-        //   }
-        // }
-        // latestRecords = latestRecordsMap;
 
         if (recordSnapshot.docs.isNotEmpty) {
           String habitRecordID = recordSnapshot.docs.first.id;
@@ -82,7 +65,6 @@ class _HabitsPageState extends State<HabitsPage> {
       setState(() {});
     } catch (e) {
       print("Error fetching: $e");
-      // Handle error: Display an error message or take appropriate action
     }
   }
 
@@ -106,12 +88,12 @@ class _HabitsPageState extends State<HabitsPage> {
                   );
                 },
               )
-            : Center(
+            : const Center(
                 child: CircularProgressIndicator(),
               ),
         floatingActionButton: FloatingActionButton(
-          backgroundColor: Color(0xFF366021),
-          child: Icon(
+          backgroundColor: const Color(0xFF366021),
+          child: const Icon(
             Icons.add,
             color: Colors.white,
           ),
@@ -119,7 +101,7 @@ class _HabitsPageState extends State<HabitsPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (child) => NewHabitPage(),
+                builder: (child) => const NewHabitPage(),
               ),
             );
           },
