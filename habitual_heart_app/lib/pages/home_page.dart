@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:habitual_heart_app/widgets/alert_dialog_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_emoji_feedback/flutter_emoji_feedback.dart';
 import '/pages/calendar_page.dart';
@@ -67,9 +68,11 @@ class _HomePageState extends State<HomePage> {
 
 
 // Global Variables
+String? moodID;
 String? todayMood;
 String? useruid;
 Icon? todayMoodIcon;
+
 
 class Home extends StatefulWidget {
 
@@ -110,12 +113,12 @@ class _HomeState extends State<Home> {
           .limit(1) // Limit to 1 document
           .get();
 
-
       if (querySnapshot.docs.isNotEmpty) {
         final doc = querySnapshot.docs.first;
         setState(() {
           todayMood = doc['mood'];
           useruid = doc['uid'];
+          moodID = doc.id; // Set moodID to the ID of the mood document
           print("Today Mood: $todayMood");
           _updateMoodIcon(todayMood!); // Update the icon based on today's mood
         });
@@ -123,30 +126,32 @@ class _HomeState extends State<Home> {
         setState(() {
           todayMood = null; // Set todayMood to null
           useruid = null; // Assuming you want to reset useruid as well
+          moodID = null; // Reset moodID if no mood record found
         });
-        print('No mood record found for today');
+        print( 'No mood record found for today');
       }
     } catch (error) {
-      print('Error fetching today\'s mood: $error');
+      showAlert(context, 'Error', 'Error fetching today\'s mood: $error');
     }
   }
 
+
   void _updateMoodIcon(String mood) {
     switch (mood) {
-      case 'Happy':
-        todayMoodIcon = Icon(Icons.sentiment_very_satisfied);
+      case 'Excellent':
+        todayMoodIcon = Icon(Icons.sentiment_very_satisfied, size: 90,);
         break;
-      case 'Content':
-        todayMoodIcon = Icon(Icons.sentiment_satisfied);
+      case 'Good':
+        todayMoodIcon = Icon(Icons.sentiment_satisfied, size: 90,);
         break;
       case 'Neutral':
-        todayMoodIcon = Icon(Icons.sentiment_neutral);
+        todayMoodIcon = Icon(Icons.sentiment_neutral, size: 90,);
         break;
-      case 'Sad':
-        todayMoodIcon = Icon(Icons.sentiment_dissatisfied);
+      case 'Bad':
+        todayMoodIcon = Icon(Icons.sentiment_dissatisfied, size: 90,);
         break;
-      case 'Angry':
-        todayMoodIcon = Icon(Icons.sentiment_very_dissatisfied);
+      case 'Terrible':
+        todayMoodIcon = Icon(Icons.sentiment_very_dissatisfied, size: 90,);
         break;
       default:
         todayMoodIcon = null; // Set to null if mood is not recognized
@@ -158,9 +163,11 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false, // Disable back button
-        title: Text(
-          "Home",
-          style: headerText,
+        title: Center(
+          child: Text(
+            formattedDate,
+            style: headerText,
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -236,7 +243,7 @@ class _HomeState extends State<Home> {
           context,
           MaterialPageRoute(
             builder: (context) => MoodDetailsPage(
-              mood: todayMood!,
+              moodId: moodID!, // Pass moodID to MoodDetailsPage
             ),
           ),
         );
@@ -256,10 +263,10 @@ class _HomeState extends State<Home> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              todayMoodIcon ?? Container(),
+              todayMoodIcon ?? Icon( todayMoodIcon as IconData?),
               Text(
                 todayMood!,
-                style: TextStyle(fontSize: 24, color: Color(0xFF366021)),
+                style: userName_display,
               ),
             ],
           ),
@@ -296,12 +303,12 @@ class MoodRow extends StatelessWidget {
               children: [
                 MoodIcon(
                   icon: Icons.sentiment_very_satisfied,
-                  label: 'Happy',
+                  label: 'Excellent',
                   onSelected: onMoodSelected,
                 ),
                 MoodIcon(
                   icon: Icons.sentiment_satisfied,
-                  label: 'Content',
+                  label: 'Good',
                   onSelected: onMoodSelected,
                 ),
                 MoodIcon(
@@ -311,12 +318,12 @@ class MoodRow extends StatelessWidget {
                 ),
                 MoodIcon(
                   icon: Icons.sentiment_dissatisfied,
-                  label: 'Sad',
+                  label: 'Bad',
                   onSelected: onMoodSelected,
                 ),
                 MoodIcon(
                   icon: Icons.sentiment_very_dissatisfied,
-                  label: 'Angry',
+                  label: 'Terrible',
                   onSelected: onMoodSelected,
                 ),
               ],

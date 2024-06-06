@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import '../main.dart';
+import '../widgets/alert_dialog_widget.dart';
 
 class SetReminder extends StatefulWidget {
   @override
@@ -44,8 +45,7 @@ class _SetReminderState extends State<SetReminder> {
           });
         }
       } catch (e) {
-        print('Error fetching reminder status: $e');
-        // Optionally, you can show a user-friendly error message here
+        showAlert(context, 'Error', 'Error fetching reminder status: $e');
       }
     }
   }
@@ -54,31 +54,36 @@ class _SetReminderState extends State<SetReminder> {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: _reminderTime ?? TimeOfDay.now(),
-        builder: (BuildContext context, Widget? child) {
-          return Theme(
-            data: Theme.of(context).copyWith(
-                colorScheme: ColorScheme.light(
-                  primary: Color(0xFF366021),
-                  onPrimary: Colors.white,
-                  onSurface: Colors.black,
-                ),
-                textButtonTheme: TextButtonThemeData(
-                    style: TextButton.styleFrom(
-                      foregroundColor: Color(0xFF366021),
-                    )
-                )
-            ),
-            child: child!,
-          );
-        }
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+              colorScheme: ColorScheme.light(
+                primary: Color(0xFF366021),
+                onPrimary: Colors.white,
+                onSurface: Colors.black,
+              ),
+              textButtonTheme: TextButtonThemeData(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Color(0xFF366021),
+                  ))),
+          child: child!,
+        );
+      },
     );
-    if (picked != null && picked != _reminderTime) {
+
+    if (picked != null) {
       setState(() {
         _reminderTime = picked;
+        _dailyReminder = true;  // Ensure the switch remains on
       });
       _saveReminderStatus();
+    } else {
+      setState(() {
+        _dailyReminder = false; // Revert the switch if the time picker is canceled
+      });
     }
   }
+
 
   void _saveReminderStatus() async {
     final uid = globalUID;
@@ -157,10 +162,10 @@ class _SetReminderState extends State<SetReminder> {
       value: _dailyReminder,
       onChanged: (bool value) {
         setState(() {
-          _dailyReminder = value;
-          if (_dailyReminder) {
+          if (value) {
             _selectTime();
           } else {
+            _dailyReminder = false;
             _reminderTime = null;
             _saveReminderStatus();
           }

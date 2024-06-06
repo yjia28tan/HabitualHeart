@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:habitual_heart_app/pages/mood_details_page.dart';
 
 import '../main.dart';
 import '/design/font_style.dart';
@@ -8,24 +9,59 @@ import 'home_page.dart';
 IconData? selectedMoodIcon;
 String? newSelectedMood;
 
-class MoodEntryPage extends StatefulWidget {
-  final String selectedMood;
+class MoodUpdatePage extends StatefulWidget {
+  final String moodId;
+  final VoidCallback onUpdateHome;
 
-  const MoodEntryPage({Key? key, required this.selectedMood}) : super(key: key);
+  const MoodUpdatePage({Key? key, required this.moodId, required this.onUpdateHome}) : super(key: key);
 
   @override
-  _MoodEntryPageState createState() => _MoodEntryPageState();
+  _MoodUpdatePageState createState() => _MoodUpdatePageState();
 }
 
-class _MoodEntryPageState extends State<MoodEntryPage> {
+class _MoodUpdatePageState extends State<MoodUpdatePage> {
+  final _formKey = GlobalKey<FormState>();
+  String? _mood;
+  String? _description;
   DateTime selectedDateTime = DateTime.now();
   TextEditingController _descriptionController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    // Update selectedMoodIcon based on the selected mood
-    switch (widget.selectedMood) {
+    _fetchMoodDetails();
+  }
+
+  Future<void> _fetchMoodDetails() async {
+    DocumentSnapshot moodDoc = await FirebaseFirestore.instance.collection('moodRecord').doc(widget.moodId).get();
+    if (moodDoc.exists) {
+      setState(() {
+        _mood = moodDoc['mood'];
+        _description = moodDoc['description'];
+        selectedDateTime = (moodDoc['timestamp'] as Timestamp).toDate();
+        _descriptionController.text = _description ?? '';
+        newSelectedMood = _mood;
+        _setMoodIcon(_mood);
+      });
+    }
+  }
+
+  void _clearFields() {
+    _descriptionController.clear();
+    selectedMoodIcon = null;
+    newSelectedMood = null;
+    selectedDateTime = DateTime.now();
+  }
+
+  void _setSelectedMoodIcon(IconData icon, String label) {
+    setState(() {
+      selectedMoodIcon = icon;
+      newSelectedMood = label;
+    });
+  }
+
+  void _setMoodIcon(String? mood) {
+    switch (mood) {
       case 'Excellent':
         selectedMoodIcon = Icons.sentiment_very_satisfied;
         break;
@@ -46,20 +82,6 @@ class _MoodEntryPageState extends State<MoodEntryPage> {
     }
   }
 
-  void _clearFields() {
-    _descriptionController.clear();
-    selectedMoodIcon = null;
-    newSelectedMood = null;
-    selectedDateTime = DateTime.now();
-  }
-
-  void _setSelectedMoodIcon(IconData icon, String label) {
-    setState(() {
-      selectedMoodIcon = icon;
-      newSelectedMood = label;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,11 +92,17 @@ class _MoodEntryPageState extends State<MoodEntryPage> {
             color: Colors.white,
           ),
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => MoodDetailsPage(moodId: widget.moodId)
+              ),
+            ).then((value) => setState(() {})
+            );
           },
         ),
         title: Text(
-          "Mood Entry",
+          "Update Mood",
           style: headerText,
         ),
       ),
@@ -88,7 +116,6 @@ class _MoodEntryPageState extends State<MoodEntryPage> {
                 onTap: () {
                   setState(() {
                     _showMoodSelectionModalBottomSheet(context);
-                    print(newSelectedMood);
                   });
                 },
                 child: Icon(
@@ -100,7 +127,6 @@ class _MoodEntryPageState extends State<MoodEntryPage> {
               ElevatedButton.icon(
                 onPressed: () {
                   // Handle date and time selection
-                  // Show date and time picker dialog
                   showDatePicker(
                     context: context,
                     initialDate: selectedDateTime,
@@ -200,7 +226,7 @@ class _MoodEntryPageState extends State<MoodEntryPage> {
                 height: 45,
                 width: 250,
                 child: ElevatedButton.icon(
-                  icon: Icon(Icons.add_reaction, color: Color(0xFF366021)),
+                  icon: Icon(Icons.update, color: Color(0xFF366021)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFFE5FFD0),
                   ),
@@ -208,44 +234,39 @@ class _MoodEntryPageState extends State<MoodEntryPage> {
                     // Access the Firestore instance
                     FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-                    // Get a reference to the "moodRecord" collection
-                    CollectionReference moodRecordCollection = firestore.collection('moodRecord');
+                    // Get a reference to the document to update
+                    DocumentReference moodDocRef = firestore.collection('moodRecord').doc(widget.moodId);
 
-                    // Generate a new document ID for the mood record
-                    String moodId = moodRecordCollection.doc().id;
-
-                    // Create a new mood record map
-                    Map<String, dynamic> moodRecord = {
-                      'uid': globalUID, // Assuming you have globalUID defined somewhere
-                      'moodid': moodId,
-                      'mood': newSelectedMood == null ? widget.selectedMood : newSelectedMood, // Assuming selectedMood is passed to the widget
+                    // Create a mood record map to update
+                    Map<String, dynamic> updatedMoodRecord = {
+                      'mood': newSelectedMood,
                       'timestamp': selectedDateTime,
-                      'description': _descriptionController.text.trim(), // Assuming _descriptionController is a TextEditingController for the description TextField
+                      'description': _descriptionController.text.trim(),
                     };
 
-                    // Add the mood record to Firestore
-                    moodRecordCollection.doc(moodId).set(moodRecord)
-                        .then((value) {
-                      // Mood record saved successfully
+                    // Update the mood record in Firestore
+                    moodDocRef.update(updatedMoodRecord).then((value) {
+                      // Mood record updated successfully
                       ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Mood record saved successfully'))
+                          SnackBar(content: Text('Mood record updated successfully'))
+                      );
+                      // Trigger home page update
+                      widget.onUpdateHome();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MoodDetailsPage(moodId: widget.moodId)
+                        ),
+                      ).then((value) => setState(() {})
                       );
                     }).catchError((error) {
                       // Error handling
                       ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Failed to save mood record: $error'))
+                          SnackBar(content: Text('Failed to update mood record: $error'))
                       );
                     });
-                    // Clear fields
-                    _clearFields();
-                    // Navigate to home page
-                    Navigator.push(context, MaterialPageRoute(
-                        builder: (context) => HomePage()
-                    ),
-                    ).then((value) => setState(() {})
-                    );
                   },
-                  label: Text('Create', style: homeSubHeaderText),
+                  label: Text('Update', style: homeSubHeaderText),
                 ),
               ),
             ],
@@ -285,10 +306,8 @@ class _MoodEntryPageState extends State<MoodEntryPage> {
       leading: Icon(icon, color: Color(0xFF366021)),
       title: Text(label, style: TextStyle(color: Color(0xFF366021))),
       onTap: () {
-        // selectedMood = null;
         _setSelectedMoodIcon(icon, label); // Update the parent state
         newSelectedMood = label;
-        print(newSelectedMood);
         Navigator.pop(context); // Close the modal bottom sheet
       },
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:habitual_heart_app/pages/set_reminder.dart';
+import '../widgets/alert_dialog_widget.dart';
 import '/main.dart';
 import '/design/font_style.dart';
 import '/design/font_style.dart';
@@ -11,6 +12,7 @@ import '/pages/privacy_policy_page.dart';
 import '/pages/terms_conditions_pages.dart';
 import '/widgets/textfield_style.dart';
 import '/widgets/profile_button_style.dart';
+import 'mood_history_page.dart';
 
 class ProfilePage extends StatefulWidget {
   static String routeName = '/ProfilePage';
@@ -55,10 +57,10 @@ class _ProfilePageState extends State<ProfilePage> {
             dailyReminder = userData['dailyReminder'];
           });
         }).catchError((error) {
-          print('Error fetching user data: $error');
+          showAlert(context, 'Error', 'Error fetching user data: $error');
         });
       } else {
-        print('globalUID is null');
+        showAlert(context, 'Error', 'globalUID is null');
       }
   }
 
@@ -101,13 +103,32 @@ class _ProfilePageState extends State<ProfilePage> {
                   // Elevated Buttons
                   // edit profile
                   profile_Button(
-                      'Edit Profile',
-                      Icons.arrow_forward_ios, () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => EditProfilePage()),
-                    );
-                  }),
+                    'Edit Profile',
+                    Icons.arrow_forward_ios,
+                        () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => EditProfilePage()),
+                      );
+                      if (result == true) {
+                        // Refresh the user data
+                        fetchUserData();
+                      }
+                    },
+                  ),
+                  SizedBox(height: 15),
+                  // Elevated Buttons
+                  // edit profile
+                  profile_Button(
+                    'Mood History',
+                    Icons.arrow_forward_ios,
+                        () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MoodHistoryPage()),
+                      );
+                    },
+                  ),
                   SizedBox(height: 20),
                   // 'More' text
                   Align(
@@ -146,7 +167,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     height: 45,
                     width: 250,
                     child: signout_Button(
-                        'Log Out',
+                        'Sign Out',
                         Icons.logout, () {
                           signOut();
                         }),

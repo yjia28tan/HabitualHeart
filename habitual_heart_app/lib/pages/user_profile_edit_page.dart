@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:habitual_heart_app/pages/profile_page.dart';
+import '../widgets/alert_dialog_widget.dart';
 import '/main.dart';
 import '/design/font_style.dart';
-import '/design/font_style.dart';
 import '/widgets/textfield_style.dart';
-import '/pages/signin_page.dart';
 import 'package:intl/intl.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -57,13 +56,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
           });
           print(userData);
         } else {
-          print('User data not found');
+          showAlert(context, 'Error', 'User data not found');
         }
-          }).catchError((error) {
-              print('Error fetching user data: $error');
-          });
+      }).catchError((error) {
+        showAlert(context, 'Error', 'Error fetching user data: $error');
+      });
     } else {
-      print('globalUID is null');
+      showAlert(context, 'Error', 'globalUID is null');
     }
   }
 
@@ -78,9 +77,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             .get();
 
         if (userQuerySnapshot.exists) {
-          // final userDoc = userQuerySnapshot.docs.first;
-          final userRef =
-          FirebaseFirestore.instance.collection('users').doc(userQuerySnapshot.id);
+          final userRef = FirebaseFirestore.instance.collection('users').doc(userQuerySnapshot.id);
 
           await userRef.update({
             'username': _usernameTextController.text,
@@ -91,10 +88,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('User data updated successfully')),
           );
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ProfilePage()),
-          );
+
+          Navigator.pop(context, true); // Pass true to indicate changes
 
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -160,7 +155,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 color: Colors.white, // set your desired color here
               ),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.pop(context, false); // Pass false if no changes
               },
             ),
             title: Text(
@@ -373,7 +368,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         updateUserData();
                       },
                       icon: const Icon(
-                        Icons.system_update_alt,
+                          Icons.system_update_alt,
                           color: Color(0xFFE5FFD0,)
                       ),
                       label: Text(
