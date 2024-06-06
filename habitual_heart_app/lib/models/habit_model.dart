@@ -15,9 +15,9 @@ class HabitModel {
     required this.habitCount,
   });
 
-  factory HabitModel.fromMap(Map<String, dynamic> data) {
+  factory HabitModel.fromMap(String habitID, Map<String, dynamic> data) {
     return HabitModel(
-      habitID: data['habitID'],
+      habitID: habitID,
       userID: data['userID'],
       habitName: data['habitName'],
       habitDescription: data['habitDescription'],
