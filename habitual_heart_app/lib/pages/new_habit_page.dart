@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class NewHabitPage extends StatefulWidget{
 
-  const NewHabitPage({Key?key}):super(key:key);
+  const NewHabitPage({super.key});
 
   @override
   State<NewHabitPage> createState() => _NewHabitPageState();
@@ -11,6 +11,6 @@ class NewHabitPage extends StatefulWidget{
 class _NewHabitPageState extends State<NewHabitPage> {
   @override
   Widget build(BuildContext context){
-    return Scaffold();
+    return const Scaffold();
   }
 }
