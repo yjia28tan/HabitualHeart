@@ -17,12 +17,23 @@ class HabitRecordModel {
     required this.streak,
   });
 
-  factory HabitRecordModel.fromMap(Map<String, dynamic> data) {
+  factory HabitRecordModel.fromMap(
+      String habitRecordID, Map<String, dynamic> data) {
+    Timestamp dateTimestamp = data['date'];
+    DateTime date = dateTimestamp.toDate();
+    List<Record> records = [];
+
+    if (data['records'] != null) {
+      records = (data['records'] as List)
+          .map((record) => Record.fromMap(record))
+          .toList();
+    }
+
     return HabitRecordModel(
-      habitRecordID: data['habitRecordID'],
+      habitRecordID: habitRecordID,
       habitID: data['habitID'],
-      date: DateTime.parse(data['date']),
-      records: (data['records'] as List).map((record) => Record.fromMap(record)).toList(),
+      date: date,
+      records: records,
       status: data['status'],
       streak: data['streak'],
     );
