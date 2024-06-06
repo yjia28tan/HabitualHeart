@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+
+import '../pages/mood_details_page.dart';
 
 class MoodListWidget extends StatelessWidget {
   final List<DocumentSnapshot> moodRecords;
@@ -38,18 +40,44 @@ class MoodListWidget extends StatelessWidget {
         var description = record['description'] ?? 'No description';
         var timestamp = (record['timestamp'] as Timestamp).toDate();
 
-        return ListTile(
-          leading: getMoodIcon(mood) ?? Icon(Icons.sentiment_satisfied),
-          title: Text(mood),
-          subtitle: Text('$description\n${timestamp.toLocal()}'),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: Icon(Icons.delete),
-                onPressed: () => onDelete(record.id),
+        return Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MoodDetailsPage(moodId: record.id),
+                ),
+              );
+            },
+            child: Card(
+              elevation: 2,
+              margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
-            ],
+              color: Color(0xFFE5FFD0).withOpacity(0.8),
+              child: ListTile(
+                leading: getMoodIcon(mood) ?? Icon(Icons.sentiment_satisfied),
+                title: Text(
+                  mood,
+                  style: TextStyle(
+                    color: Color(0xFF366021),
+                  ),
+                ),
+                subtitle: Text(
+                  '$description\n${timestamp.toLocal()}',
+                  style: TextStyle(
+                    color: Color(0xFF366021),
+                  ),
+                ),
+                trailing: IconButton(
+                  icon: Icon(Icons.delete, color: Color(0xFF366021)),
+                  onPressed: () => onDelete(record.id),
+                ),
+              ),
+            ),
           ),
         );
       },

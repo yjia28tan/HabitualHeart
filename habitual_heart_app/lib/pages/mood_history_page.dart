@@ -129,11 +129,13 @@ class _MoodHistoryPageState extends State<MoodHistoryPage> {
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
-          : Padding(
-            padding: EdgeInsets.all(16.0),
-            child: MoodListWidget(
-              moodRecords: moodRecords,
-              onDelete: (moodId) => showDeleteConfirmationDialog(moodId),
+          : SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: MoodListWidget(
+                moodRecords: moodRecords,
+                onDelete: (moodId) => showDeleteConfirmationDialog(moodId),
+              ),
             ),
           ),
     );

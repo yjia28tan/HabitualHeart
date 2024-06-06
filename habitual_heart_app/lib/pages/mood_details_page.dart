@@ -4,7 +4,6 @@ import 'package:habitual_heart_app/pages/mood_update_page.dart';
 
 import '../design/font_style.dart';
 import 'home_page.dart';
-
 class MoodDetailsPage extends StatefulWidget {
   final String moodId;
 
@@ -66,7 +65,12 @@ class _MoodDetailsPageState extends State<MoodDetailsPage> {
         setState(() {
           mood = moodDoc['mood'];
           moodDescription = moodDoc['description'];
-          timestamp = (moodDoc['timestamp'] as Timestamp).toDate();
+          // Check if 'timestamp' exists in the document
+          if (moodDoc['timestamp'] != null) {
+            timestamp = (moodDoc['timestamp'] as Timestamp).toDate();
+          } else {
+            timestamp = null; // Handle the case where 'timestamp' is not present
+          }
           getMoodIcon(mood!);
           isLoading = false;
         });
@@ -84,6 +88,7 @@ class _MoodDetailsPageState extends State<MoodDetailsPage> {
     }
   }
 
+
   Future<void> deleteMood(String moodId) async {
     try {
       await FirebaseFirestore.instance
@@ -93,7 +98,7 @@ class _MoodDetailsPageState extends State<MoodDetailsPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => HomePage()
+            builder: (context) => HomePage()
         ),
       ).then((value) => setState(() {})
       );
@@ -142,8 +147,21 @@ class _MoodDetailsPageState extends State<MoodDetailsPage> {
     );
   }
 
+  bool isToday(DateTime? dateTime) {
+    if (dateTime == null) {
+      return false;
+    }
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final otherDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    return today == otherDate;
+  }
+
+
   @override
   Widget build(BuildContext context) {
+    final isTodayMood = isToday(timestamp);
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -152,13 +170,7 @@ class _MoodDetailsPageState extends State<MoodDetailsPage> {
             color: Colors.white,
           ),
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => HomePage()
-              ),
-            ).then((value) => setState(() {})
-            );
+            Navigator.pop(context, true);
           },
         ),
         title: Text(
@@ -169,77 +181,79 @@ class _MoodDetailsPageState extends State<MoodDetailsPage> {
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-            padding: EdgeInsets.all(16.0),
-            child: Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (todayMoodIcon != null)
-                    Icon(
-                      todayMoodIcon!.icon,
-                      size: 100,
-                      color: Color(0xFF366021),
-                    ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Mood: $mood',
-                    style: TextStyle(fontSize: 24, color: Color(0xFF366021)),
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Description:',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF366021)),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    moodDescription ?? 'Loading...',
-                    style: TextStyle(fontSize: 16, color: Color(0xFF366021)),
-                  ),
-                  SizedBox(height: 16),
-                  Container(
-                    height: 45,
-                    width: 250,
-                    child: ElevatedButton.icon(
-                      icon: Icon(Icons.edit, color: Color(0xFF366021)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFE5FFD0),
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => MoodUpdatePage(
-                              moodId: widget.moodId,
-                              onUpdateHome: refreshHomePage,
-                            ),
-                          ),
-                        );
-                      },
-                      label: Text('Edit', style: homeSubHeaderText),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Container(
-                    height: 45,
-                    width: 250,
-                    child: ElevatedButton.icon(
-                      icon: Icon(Icons.delete_forever, color: Color(0xFF366021)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFE5FFD0),
-                      ),
-                      onPressed: () {
-                        showDeleteConfirmationDialog(widget.moodId);
-                      },
-                      label: Text('Delete', style: homeSubHeaderText),
-                    ),
-                  ),
-                ],
+        padding: EdgeInsets.all(16.0),
+        child: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (todayMoodIcon != null)
+                Icon(
+                  todayMoodIcon!.icon,
+                  size: 100,
+                  color: Color(0xFF366021),
+                ),
+              SizedBox(height: 16),
+              Text(
+                'Mood: $mood',
+                style: TextStyle(fontSize: 24, color: Color(0xFF366021)),
               ),
-            ),
+              SizedBox(height: 16),
+              Text(
+                'Description:',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF366021)),
+              ),
+              SizedBox(height: 8),
+              Text(
+                moodDescription ?? 'Loading...',
+                style: TextStyle(fontSize: 16, color: Color(0xFF366021)),
+              ),
+              SizedBox(height: 16),
+              Container(
+                height: 45,
+                width: 250,
+                child: ElevatedButton.icon(
+                  icon: Icon(Icons.edit, color: Color(0xFF366021)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFE5FFD0),
+                  ),
+                  onPressed: isTodayMood
+                      ? () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MoodUpdatePage(
+                          moodId: widget.moodId,
+                          onUpdateHome: refreshHomePage,
+                        ),
+                      ),
+                    );
+                  }
+                      : null, // Disable the button if mood is not created today
+                  label: Text('Edit', style: homeSubHeaderText),
+                ),
+              ),
+              SizedBox(height: 16),
+              Container(
+                height: 45,
+                width: 250,
+                child: ElevatedButton.icon(
+                  icon: Icon(Icons.delete_forever, color: Color(0xFF366021)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFE5FFD0),
+                  ),
+                  onPressed: () {
+                    showDeleteConfirmationDialog(widget.moodId);
+                  },
+                  label: Text('Delete', style: homeSubHeaderText),
+                ),
+              ),
+            ],
           ),
+        ),
+      ),
     );
   }
 }

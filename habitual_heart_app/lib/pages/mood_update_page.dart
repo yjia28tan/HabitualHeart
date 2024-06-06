@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:habitual_heart_app/pages/mood_details_page.dart';
+import 'package:habitual_heart_app/pages/profile_page.dart';
 
 import '../main.dart';
 import '/design/font_style.dart';
@@ -255,7 +256,7 @@ class _MoodUpdatePageState extends State<MoodUpdatePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => MoodDetailsPage(moodId: widget.moodId)
+                            builder: (context) => HomePage()
                         ),
                       ).then((value) => setState(() {})
                       );
