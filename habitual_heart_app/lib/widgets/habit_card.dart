@@ -3,11 +3,11 @@ import 'package:habitual_heart_app/models/habit_model.dart';
 import 'package:habitual_heart_app/models/habit_record_model.dart';
 
 class HabitCard extends StatelessWidget {
-  const HabitCard({Key? key, required this.habit, required this.record})
+  const HabitCard({Key? key, required this.habit, this.record})
       : super(key: key);
 
   final HabitModel habit;
-  final HabitRecordModel record;
+  final HabitRecordModel? record;
 
   @override
   Widget build(BuildContext context) {
@@ -21,12 +21,15 @@ class HabitCard extends StatelessWidget {
             children: [
               Icon(
                 Icons.local_fire_department,
-                color: record.streak > 0 ? Colors.orange : null,
+                color: record != null
+                    ? record!.streak > 0
+                        ? Colors.orange
+                        : Colors.grey
+                    : Colors.grey,
               ),
-              Text(record.streak.toString())
+              record != null ? Text(record!.streak.toString()) : const Text('0')
             ],
-          )
-      ),
+          )),
     );
   }
 
