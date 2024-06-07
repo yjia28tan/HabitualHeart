@@ -41,9 +41,43 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIBackgroundModes</key>
+        <array>
+            <string>fetch</string>
+            <string>remote-notification</string>
+        </array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Add the required keys for notifications -->
+        <key>UIUserNotificationType</key>
+        <integer>7</integer>
+        <key>UIUserNotificationCategory</key>
+        <array>
+            <dict>
+                <key>identifier</key>
+                <string>daily_reminder_channel</string>
+                <key>actions</key>
+                <array>
+                    <dict>
+                        <key>identifier</key>
+                        <string>View</string>
+                        <key>title</key>
+                        <string>View</string>
+                        <key>activationMode</key>
+                        <string>foreground</string>
+                        <key>authenticationRequired</key>
+                        <false/>
+                        <key>destructive</key>
+                        <false/>
+                    </dict>
+                </array>
+                <key>intentIdentifiers</key>
+                <array/>
+            </dict>
+        </array>
+        <key>UIBackgroundFetch</key>
+        <true/>
 </dict>
 </plist>

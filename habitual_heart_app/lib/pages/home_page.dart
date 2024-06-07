@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:habitual_heart_app/widgets/alert_dialog_widget.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_emoji_feedback/flutter_emoji_feedback.dart';
 import '/pages/calendar_page.dart';
 import '/pages/discover_page.dart';
 import '/pages/habits_page.dart';

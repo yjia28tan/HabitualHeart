@@ -5,7 +5,8 @@ import '../widgets/cardview_discover.dart';
 import 'package:habitual_heart_app/data/get_quotes_with_api.dart';
 import '/models/quote_model.dart';
 import '/pages/meditation_guide_page.dart';
-
+import 'package:habitual_heart_app/data/youtube_services.dart'; // Import YouTube service
+import 'video_player.dart'; // Import Video player screen
 
 class DiscoverPage extends StatefulWidget {
   static String routeName = '/DiscoverPage';
@@ -19,11 +20,14 @@ class DiscoverPage extends StatefulWidget {
 class _DiscoverPageState extends State<DiscoverPage> {
   late Future<QuoteResponse?> quoteFuture;
   final GetQoutesClass qouoteData = GetQoutesClass();
+  final YouTubeService _youTubeService = YouTubeService();
+  Future<List<Map<String, String>>>? videoFuture;
 
   @override
   void initState() {
     super.initState();
     quoteFuture = qouoteData.getQuote();
+    videoFuture = _youTubeService.fetchMeditationVideos();
   }
 
   @override
@@ -84,7 +88,6 @@ class _DiscoverPageState extends State<DiscoverPage> {
                             quote?.content ?? 'No quote available',
                             style: TextStyle(fontSize: 18.0, fontStyle: FontStyle.italic),
                           ),
-
                         ],
                       ),
                     ),
@@ -97,7 +100,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                "Meditation Tools",
+                "Meditation Guides",
                 style: homeSubHeaderText,
               ),
             ),
@@ -127,6 +130,51 @@ class _DiscoverPageState extends State<DiscoverPage> {
                     },
                   ),
                 );
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Meditation Videos",
+                style: homeSubHeaderText,
+              ),
+            ),
+            FutureBuilder<List<Map<String, String>>>(
+              future: videoFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Failed to load videos');
+                } else if (snapshot.hasData) {
+                  final videos = snapshot.data!;
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: videos.length,
+                    itemBuilder: (context, index) {
+                      final video = videos[index];
+                      print(video);
+                      return ListTile(
+                        title: Text(video['title']!),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (
+                                  context) => VideoPlayerScreen(
+                                  videoId: video['videoId']!
+                              ),
+                            ),
+                          );
+                          print(video['videoId']!);
+                        },
+                      );
+                    },
+                  );
+                } else {
+                  return Text('No videos available');
+                }
               },
             ),
           ],
