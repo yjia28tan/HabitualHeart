@@ -69,6 +69,14 @@ class _HabitsPageState extends State<HabitsPage> {
     }
   }
 
+  List<HabitModel> filterHabitsByCategory(String category) {
+    if (category == "All") {
+      return habits;
+    } else {
+      return habits.where((habit) => habit.habitCategory == category).toList();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -127,16 +135,17 @@ class _HabitsPageState extends State<HabitsPage> {
           Expanded(
             child: habits.isNotEmpty
                 ? ListView.builder(
-                    itemCount: habits.length,
+                    itemCount: filterHabitsByCategory(selectedCategory).length,
                     itemBuilder: (context, index) {
+                      final filteredHabits = filterHabitsByCategory(selectedCategory);
                       return HabitCard(
-                        habit: habits[index],
-                        record: latestRecordsMap[habits[index].habitID],
+                        habit: filteredHabits[index],
+                        record: latestRecordsMap[filteredHabits[index].habitID],
                       );
                     },
                   )
                 : const Center(
-                    child: CircularProgressIndicator(),
+                    child: Text('No Record Found'),
                   ),
           ),
         ],
