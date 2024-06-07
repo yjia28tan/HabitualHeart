@@ -3,6 +3,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:habitual_heart_app/models/habit_model.dart';
 import 'package:habitual_heart_app/models/habit_record_model.dart';
 import 'package:habitual_heart_app/pages/edit_habit_page.dart';
+import 'package:habitual_heart_app/pages/habit_check_in_page.dart';
 
 class HabitCard extends StatelessWidget {
   const HabitCard({super.key, required this.habit, this.record});
@@ -12,86 +13,98 @@ class HabitCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Slidable(
-      key: Key(habit.habitID),
-      actionPane: const SlidableScrollActionPane(),
-      secondaryActions: <Widget>[
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: SizedBox(
-            height: 63,
-            child: IconSlideAction(
-              caption: 'Edit',
-              color: Colors.lightGreenAccent,
-              icon: Icons.edit,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => EditHabitPage(habit: habit)),
-                );
-              },
-            ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HabitCheckInPage(habit: habit),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 3),
-          child: ClipRRect(
+        );
+      },
+      child: Slidable(
+        key: Key(habit.habitID),
+        actionPane: const SlidableScrollActionPane(),
+        secondaryActions: <Widget>[
+          ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: SizedBox(
               height: 63,
               child: IconSlideAction(
-                caption: 'Delete',
-                color: Colors.lightGreen,
-                icon: Icons.delete,
+                caption: 'Edit',
+                color: Colors.lightGreenAccent,
+                icon: Icons.edit,
                 onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Confirm Delete'),
-                      content: const Text(
-                          'Are you sure you want to delete this habit?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            deleteHabit(habit);
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text('Delete'),
-                        ),
-                      ],
-                    ),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => EditHabitPage(habit: habit)),
                   );
                 },
               ),
             ),
           ),
-        ),
-      ],
-      child: Card(
-        child: ListTile(
-          leading: habitCategoryIcon(habit.habitCategory),
-          title: Text(habit.habitName),
-          subtitle: Text(habit.habitCategory),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.local_fire_department,
-                color: record != null
-                    ? record!.streak > 0
-                        ? Colors.orange
-                        : Colors.grey
-                    : Colors.grey,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 3),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: SizedBox(
+                height: 63,
+                child: IconSlideAction(
+                  caption: 'Delete',
+                  color: Colors.lightGreen,
+                  icon: Icons.delete,
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Confirm Delete'),
+                        content: const Text(
+                            'Are you sure you want to delete this habit?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              deleteHabit(habit);
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('Delete'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
-              record != null ? Text(record!.streak.toString()) : const Text('0')
-            ],
+            ),
+          ),
+        ],
+        child: Card(
+          child: ListTile(
+            leading: habitCategoryIcon(habit.habitCategory),
+            title: Text(habit.habitName),
+            subtitle: Text(habit.habitCategory),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.local_fire_department,
+                  color: record != null
+                      ? record!.streak > 0
+                          ? Colors.orange
+                          : Colors.grey
+                      : Colors.grey,
+                ),
+                record != null
+                    ? Text(record!.streak.toString())
+                    : const Text('0')
+              ],
+            ),
           ),
         ),
       ),
