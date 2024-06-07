@@ -10,7 +10,6 @@ class YouTubeService {
   'https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=$channelId&type=video&key=$apiKey&maxResults=10&q=meditation';
 
   final response = await http.get(Uri.parse(url));
-  print(response.body);
 
   if (response.statusCode == 200) {
     List<dynamic> data = json.decode(response.body)['items'];

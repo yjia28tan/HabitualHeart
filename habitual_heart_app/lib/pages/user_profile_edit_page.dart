@@ -152,7 +152,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             leading: IconButton(
               icon: Icon(
                 Icons.arrow_back,
-                color: Colors.white, // set your desired color here
+                color: Colors.white,
               ),
               onPressed: () {
                 Navigator.pop(context, false); // Pass false if no changes
