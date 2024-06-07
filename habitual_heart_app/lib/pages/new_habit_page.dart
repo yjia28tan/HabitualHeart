@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:habitual_heart_app/main.dart';
 import 'package:habitual_heart_app/design/font_style.dart';
 import 'package:habitual_heart_app/data/habit_category_list.dart';
+import 'package:habitual_heart_app/pages/habits_page.dart';
 
 class NewHabitPage extends StatefulWidget {
   const NewHabitPage({super.key});
@@ -13,6 +16,8 @@ class _NewHabitPageState extends State<NewHabitPage> {
   IconData _selectedIcon = Icons.crop_original;
   String? _selectedCategory;
   int _habitCount = 1;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
 
   IconData _getIconForCategory(String category) {
     switch (category) {
@@ -27,6 +32,47 @@ class _NewHabitPageState extends State<NewHabitPage> {
       default:
         return Icons.crop_original;
     }
+  }
+
+  Future<void> _submitHabit() async {
+    final uid = globalUID;
+
+    if (_nameController.text.isEmpty || _selectedCategory == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please fill all fields.')));
+      return;
+    } else {
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+      CollectionReference habitCollection = firestore.collection('habits');
+      String habitId = habitCollection.doc().id;
+      Map<String, dynamic> habitData = {
+        'userID': uid,
+        'habitName': _nameController.text.trim(),
+        'habitDescription': _descriptionController.text.trim(),
+        'habitCategory': _selectedCategory,
+        'habitCount': _habitCount,
+      };
+      habitCollection.doc(habitId).set(habitData).then((value) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Habit saved successfully.')));
+        _clearFields();
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => HabitsPage()));
+      }).catchError((error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to save habit: $error')));
+      });
+    }
+  }
+
+  void _clearFields() {
+    _nameController.clear();
+    _descriptionController.clear();
+    setState(() {
+      _selectedCategory = null;
+      _habitCount = 1;
+      _selectedIcon = Icons.add_circle_outline;
+    });
   }
 
   @override
@@ -74,6 +120,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
               ),
             ),
             TextFormField(
+              controller: _nameController,
               decoration: const InputDecoration(
                   hintText: 'Write habit name...',
                   border: OutlineInputBorder(
@@ -89,6 +136,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
             ),
             const SizedBox(height: 6.0),
             TextFormField(
+              controller: _descriptionController,
               decoration: const InputDecoration(
                   hintText: 'Write description...',
                   border: OutlineInputBorder(
@@ -176,7 +224,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                   'Submit',
                   style: homeSubHeaderText,
                 ),
-                onPressed: () {},
+                onPressed: _submitHabit,
               ),
             ),
           ]),
