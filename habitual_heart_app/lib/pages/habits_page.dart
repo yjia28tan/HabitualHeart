@@ -133,7 +133,7 @@ class _HabitsPageState extends State<HabitsPage> {
             ),
           ),
           Expanded(
-            child: habits.isNotEmpty
+            child: filterHabitsByCategory(selectedCategory).isNotEmpty
                 ? ListView.builder(
                     itemCount: filterHabitsByCategory(selectedCategory).length,
                     itemBuilder: (context, index) {
@@ -151,7 +151,7 @@ class _HabitsPageState extends State<HabitsPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF366021),
+        backgroundColor: theme.bottomNavigationBarTheme.selectedItemColor,
         child: const Icon(
           Icons.add,
           color: Colors.white,
