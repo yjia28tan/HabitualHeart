@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '/models/meditation_tools.dart'; //
+import '/models/meditation_tools.dart'; // Make sure the import path is correct
 
 class MeditationGuidePage extends StatelessWidget {
   final MeditationTool tool;

@@ -4,7 +4,8 @@ import '../models/meditation_tools.dart';
 import '../widgets/cardview_discover.dart';
 import 'package:habitual_heart_app/data/get_quotes_with_api.dart';
 import '/models/quote_model.dart';
-import 'meditation_guide_page.dart';
+import '/pages/meditation_guide_page.dart';
+
 
 class DiscoverPage extends StatefulWidget {
   static String routeName = '/DiscoverPage';
@@ -115,6 +116,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                     title: tool.title,
                     description: tool.description,
                     icon: tool.icon,
+                    backgroundImage: tool.backgroundImage,
                     onTap: () {
                       Navigator.push(
                         context,
