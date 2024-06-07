@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:habitual_heart_app/models/habit_model.dart';
 import 'package:habitual_heart_app/models/habit_record_model.dart';
 import 'package:habitual_heart_app/pages/edit_habit_page.dart';
@@ -9,47 +11,122 @@ class HabitCard extends StatelessWidget {
   final HabitModel habit;
   final HabitRecordModel? record;
 
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Slidable(
+  //     key: Key(habit.habitID),
+  //     endActionPane: ActionPane(
+  //       motion: const ScrollMotion(),
+  //       children: [
+  //         SlidableAction(
+  //           onPressed: (context) {
+  //             Navigator.push(
+  //               context,
+  //               MaterialPageRoute(
+  //                   builder: (context) => EditHabitPage(habit: habit)),
+  //             );
+  //           },
+  //           backgroundColor: Colors.lightGreenAccent,
+  //           // foregroundColor: Colors.white,
+  //           icon: Icons.edit,
+  //           label: 'Edit',
+  //         ),
+  //         SlidableAction(
+  //           onPressed: (context) {
+  //             showDialog(
+  //               context: context,
+  //               builder: (context) => AlertDialog(
+  //                 title: const Text('Confirm Delete'),
+  //                 content:
+  //                     const Text('Are you sure you want to delete this habit?'),
+  //                 actions: [
+  //                   TextButton(
+  //                     onPressed: () {
+  //                       Navigator.of(context).pop();
+  //                     },
+  //                     child: const Text('Cancel'),
+  //                   ),
+  //                   TextButton(
+  //                     onPressed: () {
+  //                       deleteHabit(habit);
+  //                       Navigator.of(context).pop();
+  //                     },
+  //                     child: const Text('Delete'),
+  //                   ),
+  //                 ],
+  //               ),
+  //             );
+  //           },
+  //           backgroundColor: Colors.green,
+  //           // foregroundColor: Colors.white,
+  //           icon: Icons.delete,
+  //           label: 'Delete',
+  //         ),
+  //       ],
+  //     ),
+  //     child: Card(
+  //       child: ListTile(
+  //         leading: habitCategoryIcon(habit.habitCategory),
+  //         title: Text(habit.habitName),
+  //         subtitle: Text(habit.habitCategory),
+  //         trailing: Row(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             Icon(
+  //               Icons.local_fire_department,
+  //               color: record != null
+  //                   ? record!.streak > 0
+  //                       ? Colors.orange
+  //                       : Colors.grey
+  //                   : Colors.grey,
+  //             ),
+  //             record != null ? Text(record!.streak.toString()) : const Text('0')
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
   @override
   Widget build(BuildContext context) {
-    return Dismissible(
+    return Slidable(
       key: Key(habit.habitID),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Container(
-              color: Colors.limeAccent,
-              child: IconButton(
-                icon: const Icon(
-                  Icons.edit,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => EditHabitPage(habit: habit)),
-                  );
-                },
-              ),
+      actionPane: SlidableScrollActionPane(),
+      secondaryActions: <Widget>[
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: SizedBox(
+            height: 63,
+            child: IconSlideAction(
+              caption: 'Edit',
+              color: Colors.lightGreenAccent,
+              icon: Icons.edit,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => EditHabitPage(habit: habit)),
+                );
+              },
             ),
-            Container(
-              color: Colors.lime,
-              child: IconButton(
-                icon: const Icon(
-                  Icons.delete,
-                  color: Colors.white,
-                ),
-                onPressed: () {
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 3),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: SizedBox(
+              height: 63,
+              child: IconSlideAction(
+                caption: 'Delete',
+                color: Colors.lightGreen,
+                icon: Icons.delete,
+                onTap: () {
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
                       title: const Text('Confirm Delete'),
                       content: const Text(
-                          'Are you sure you want to delete this habbit?'),
+                          'Are you sure you want to delete this habit?'),
                       actions: [
                         TextButton(
                           onPressed: () {
@@ -70,13 +147,9 @@ class HabitCard extends StatelessWidget {
                 },
               ),
             ),
-          ],
+          ),
         ),
-      ),
-      confirmDismiss: (direction) async {
-        return false;
-      },
-      onDismissed: (direction) {},
+      ],
       child: Card(
         child: ListTile(
           leading: habitCategoryIcon(habit.habitCategory),
