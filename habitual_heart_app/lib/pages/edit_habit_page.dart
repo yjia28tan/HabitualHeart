@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitual_heart_app/models/habit_model.dart';
+import 'package:habitual_heart_app/design/font_style.dart';
 
 class EditHabitPage extends StatefulWidget{
   final HabitModel habit;
@@ -13,6 +14,14 @@ class EditHabitPage extends StatefulWidget{
 class _EditHabitPageState extends State<EditHabitPage> {
   @override
   Widget build(BuildContext context){
-    return Scaffold();
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false, //disable back button
+        title: Text(
+          "Modify Habit",
+          style: headerText,
+        ),
+      ),
+    );
   }
 }
