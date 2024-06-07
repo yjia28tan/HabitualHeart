@@ -54,10 +54,10 @@ class _NewHabitPageState extends State<NewHabitPage> {
       };
       habitCollection.doc(habitId).set(habitData).then((value) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Habit saved successfully.')));
+            .showSnackBar(const SnackBar(content: Text('Habit saved successfully.')));
         _clearFields();
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => HabitsPage()));
+            context, MaterialPageRoute(builder: (context) => const HabitsPage()));
       }).catchError((error) {
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed to save habit: $error')));
