@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:habitual_heart_app/pages/mood_update_page.dart';
+import 'package:intl/intl.dart';
 
 import '../design/font_style.dart';
 import 'home_page.dart';
+
 class MoodDetailsPage extends StatefulWidget {
   final String moodId;
 
@@ -88,7 +90,6 @@ class _MoodDetailsPageState extends State<MoodDetailsPage> {
     }
   }
 
-
   Future<void> deleteMood(String moodId) async {
     try {
       await FirebaseFirestore.instance
@@ -97,11 +98,8 @@ class _MoodDetailsPageState extends State<MoodDetailsPage> {
           .delete();
       Navigator.push(
         context,
-        MaterialPageRoute(
-            builder: (context) => HomePage()
-        ),
-      ).then((value) => setState(() {})
-      );
+        MaterialPageRoute(builder: (context) => HomePage()),
+      ).then((value) => setState(() {}));
 
       // Trigger a rebuild of the homepage by setting the state
       setState(() {});
@@ -133,11 +131,8 @@ class _MoodDetailsPageState extends State<MoodDetailsPage> {
                 deleteMood(moodId);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => HomePage()
-                  ),
-                ).then((value) => setState(() {})
-                );
+                  MaterialPageRoute(builder: (context) => HomePage()),
+                ).then((value) => setState(() {}));
               },
               child: Text('Delete'),
             ),
@@ -157,6 +152,12 @@ class _MoodDetailsPageState extends State<MoodDetailsPage> {
     return today == otherDate;
   }
 
+  String formatTimestamp(DateTime? dateTime) {
+    if (dateTime == null) {
+      return 'N/A';
+    }
+    return DateFormat('dd-MM-yyyy HH:mm:ss').format(dateTime);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -194,21 +195,74 @@ class _MoodDetailsPageState extends State<MoodDetailsPage> {
                 ),
               SizedBox(height: 16),
               Text(
-                'Mood: $mood',
-                style: TextStyle(fontSize: 24, color: Color(0xFF366021)),
+                formatTimestamp(timestamp),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 16),
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Mood:',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(width: 8), // Adjust width to add space between the texts
+                    Text(
+                      '$mood',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF366021),
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               SizedBox(height: 16),
               Text(
                 'Description:',
                 style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF366021)),
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               SizedBox(height: 8),
-              Text(
-                moodDescription ?? 'Loading...',
-                style: TextStyle(fontSize: 16, color: Color(0xFF366021)),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: 50,
+                  maxHeight: 500,
+                ),
+                child: SingleChildScrollView(
+                  child: TextField(
+                    controller: TextEditingController(text: moodDescription ?? 'Loading...'),
+                    readOnly: true,
+                    maxLines: null,
+                    minLines: 1,
+                    style: const TextStyle(
+                      color: Colors.black87,
+                      fontStyle: FontStyle.italic,
+                    ),
+                    decoration: InputDecoration(
+                      labelStyle: TextStyle(color: Colors.white.withOpacity(0.9)),
+                      filled: true,
+                      floatingLabelBehavior: FloatingLabelBehavior.never,
+                      fillColor: Color(0xFFE5FFD0).withOpacity(0.7),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                        borderSide: const BorderSide(width: 0, style: BorderStyle.none),
+                      ),
+                    ),
+                  ),
+                ),
               ),
               SizedBox(height: 16),
               Container(

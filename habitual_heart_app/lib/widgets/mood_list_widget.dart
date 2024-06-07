@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
+import '../design/font_style.dart';
 import '../pages/mood_details_page.dart';
 
 class MoodListWidget extends StatelessWidget {
@@ -27,6 +30,13 @@ class MoodListWidget extends StatelessWidget {
       default:
         return null;
     }
+  }
+
+  String formatTimestamp(DateTime? dateTime) {
+    if (dateTime == null) {
+      return 'N/A';
+    }
+    return DateFormat('dd-MM-yyyy HH:mm:ss').format(dateTime);
   }
 
   @override
@@ -59,19 +69,34 @@ class MoodListWidget extends StatelessWidget {
               ),
               color: Color(0xFFE5FFD0).withOpacity(0.8),
               child: ListTile(
-                leading: getMoodIcon(mood) ?? Icon(Icons.sentiment_satisfied),
+                leading: getMoodIcon(mood) ?? Icon(
+                    Icons.sentiment_satisfied,
+                    color: Color(0xFF366021),
+                ),
                 title: Text(
-                  mood,
-                  style: TextStyle(
-                    color: Color(0xFF366021),
-                  ),
+                  '${formatTimestamp(timestamp)}',
+                  style: homeSubHeaderText,
                 ),
-                subtitle: Text(
-                  '$description\n${timestamp.toLocal()}',
-                  style: TextStyle(
-                    color: Color(0xFF366021),
-                  ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$mood',
+                      style: GoogleFonts.leagueSpartan(
+                        color: Color(0xFF366021),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '$description',
+                      style: TextStyle(
+                        color: Color(0xFF366021),
+                      ),
+                    ),
+                  ],
                 ),
+
                 trailing: IconButton(
                   icon: Icon(Icons.delete, color: Color(0xFF366021)),
                   onPressed: () => onDelete(record.id),

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../main.dart';
 import '/design/font_style.dart';
@@ -59,6 +60,14 @@ class _MoodEntryPageState extends State<MoodEntryPage> {
       newSelectedMood = label;
     });
   }
+
+  String formatTimestamp(DateTime? dateTime) {
+    if (dateTime == null) {
+      return 'N/A';
+    }
+    return DateFormat('dd-MM-yyyy HH:mm:ss').format(dateTime);
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -165,7 +174,7 @@ class _MoodEntryPageState extends State<MoodEntryPage> {
                 },
                 icon: const Icon(Icons.calendar_month, color: Color(0xFF366021)),
                 label: Text(
-                  '${selectedDateTime.day}/${selectedDateTime.month}/${selectedDateTime.year} ${selectedDateTime.hour}:${selectedDateTime.minute}',
+                  formatTimestamp(selectedDateTime),
                   style: homeSubHeaderText,
                 ),
                 style: ElevatedButton.styleFrom(

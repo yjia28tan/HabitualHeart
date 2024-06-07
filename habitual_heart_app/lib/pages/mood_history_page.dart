@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:habitual_heart_app/pages/mood_update_page.dart';
 import 'package:habitual_heart_app/pages/profile_page.dart';
+import 'package:intl/intl.dart';
 
 import '../design/font_style.dart';
 import '../widgets/mood_list_widget.dart';
