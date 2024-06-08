@@ -17,7 +17,7 @@ class MeditationGuidePage extends StatelessWidget {
     // Determine which guide content widget to display based on the selected tool
     switch (tool.title) {
       case 'Mindfulness':
-        guideContentWidget = MindfulnessExerciseGuide();
+        guideContentWidget = MindfulnessGuideContent();
         break;
       case 'Breathing Exercise':
         guideContentWidget = BreathingGuideContent();
