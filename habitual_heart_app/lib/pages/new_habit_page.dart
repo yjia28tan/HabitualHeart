@@ -119,6 +119,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
                 style: homeSubHeaderText,
               ),
             ),
+            const SizedBox(height: 6.0),
             TextFormField(
               controller: _nameController,
               decoration: const InputDecoration(
