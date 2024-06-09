@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:habitual_heart_app/design/font_style.dart';
 import 'package:habitual_heart_app/main.dart';
 import 'package:habitual_heart_app/models/habit_model.dart';
-import 'package:habitual_heart_app/models/habit_record_model.dart';
 import 'package:habitual_heart_app/widgets/habit_card.dart';
-import '/widgets/textfield_style.dart';
-import '/pages/signin_page.dart';
 import '/pages/new_habit_page.dart';
 import 'package:habitual_heart_app/data/habit_category_list.dart';
 
@@ -21,14 +17,19 @@ class HabitsPage extends StatefulWidget {
 }
 
 class _HabitsPageState extends State<HabitsPage> {
+  late DateTime now;
+  late DateTime yesterday;
   List<HabitModel> habits = [];
-  late Map<String, HabitRecordModel?> latestRecordsMap;
+  Map<String, int> yesterdayStreakMap = {};
+  Map<String, bool> todayStatusMap = {};
   String selectedCategory = 'All';
 
   @override
   void initState() {
     super.initState();
-    latestRecordsMap = {};
+    now =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    yesterday = now.subtract(const Duration(days: 1));
     fetchHabits();
   }
 
@@ -36,7 +37,9 @@ class _HabitsPageState extends State<HabitsPage> {
     try {
       final uid = globalUID;
       List<HabitModel> fetchedHabits = [];
-      Map<String, HabitRecordModel?> fetchedLatestRecordsMap = {};
+      Map<String, int> fetchedStreaksMap = {};
+      Map<String, bool> fetchedStatusMap = {};
+      Map<String, dynamic> todayStatusData = {};
 
       QuerySnapshot habitSnapshot = await FirebaseFirestore.instance
           .collection('habits')
@@ -49,25 +52,49 @@ class _HabitsPageState extends State<HabitsPage> {
             HabitModel.fromMap(habitID, doc.data() as Map<String, dynamic>);
         fetchedHabits.add(habit);
 
-        QuerySnapshot recordSnapshot = await FirebaseFirestore.instance
+        QuerySnapshot todayStatusSnapshot = await FirebaseFirestore.instance
             .collection('habitRecord')
             .where('habitID', isEqualTo: habitID)
+            .where('date', isEqualTo: Timestamp.fromDate(now))
+            .limit(1)
+            .get();
+
+        if (todayStatusSnapshot.docs.isNotEmpty) {
+          todayStatusData =
+              todayStatusSnapshot.docs.first.data() as Map<String, dynamic>;
+          fetchedStatusMap[habitID] = todayStatusData['status'];
+        } else {
+          fetchedStatusMap[habitID] = false;
+        }
+
+        QuerySnapshot yesterdayRecordSnapshot = await FirebaseFirestore.instance
+            .collection('habitRecord')
+            .where('habitID', isEqualTo: habitID)
+            .where('date', isLessThan: Timestamp.fromDate(now))
             .orderBy('date', descending: true)
             .limit(1)
             .get();
 
-        if (recordSnapshot.docs.isNotEmpty) {
-          String habitRecordID = recordSnapshot.docs.first.id;
-          fetchedLatestRecordsMap[habitID] = HabitRecordModel.fromMap(
-              habitRecordID,
-              recordSnapshot.docs.first.data() as Map<String, dynamic>);
+        if (todayStatusData['status'] == true) {
+          fetchedStreaksMap[habitID] = todayStatusData['streak'];
         } else {
-          fetchedLatestRecordsMap[habitID] = null;
+          if (yesterdayRecordSnapshot.docs.isNotEmpty) {
+            var yesterdayRecordData = yesterdayRecordSnapshot.docs.first.data()
+                as Map<String, dynamic>;
+            if (yesterdayRecordData['date'] == Timestamp.fromDate(yesterday)) {
+              fetchedStreaksMap[habitID] = yesterdayRecordData['streak'];
+            } else {
+              fetchedStreaksMap[habitID] = 0;
+            }
+          } else {
+            fetchedStreaksMap[habitID] = 0;
+          }
         }
       }
       setState(() {
         habits = fetchedHabits;
-        latestRecordsMap = fetchedLatestRecordsMap;
+        yesterdayStreakMap = fetchedStreaksMap;
+        todayStatusMap = fetchedStatusMap;
       });
     } catch (e) {
       print("Error fetching: $e");
@@ -148,7 +175,12 @@ class _HabitsPageState extends State<HabitsPage> {
                           filterHabitsByCategory(selectedCategory);
                       return HabitCard(
                         habit: filteredHabits[index],
-                        record: latestRecordsMap[filteredHabits[index].habitID],
+                        yesterdayStreak:
+                            yesterdayStreakMap[filteredHabits[index].habitID] ??
+                                0,
+                        todayStatus:
+                            todayStatusMap[filteredHabits[index].habitID] ??
+                                false,
                         fetchHabits: fetchHabits,
                       );
                     },
