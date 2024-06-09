@@ -156,10 +156,6 @@ class _HabitCardState extends State<HabitCard> {
         await doc.reference.delete();
       }
       if (scaffoldMessengerKey.currentContext != null) {
-        // Navigator.pushReplacement(
-        //   scaffoldMessengerKey.currentContext!,
-        //   MaterialPageRoute(builder: (context) => const HabitsPage()),
-        // );
         ScaffoldMessenger.of(scaffoldMessengerKey.currentContext!).showSnackBar(
           const SnackBar(content: Text('Habit deleted successfully.')),
         );
