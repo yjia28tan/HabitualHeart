@@ -1,30 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:habitual_heart_app/design/font_style.dart';
 import 'package:habitual_heart_app/models/habit_model.dart';
-import 'package:habitual_heart_app/pages/habits_page.dart';
 
 class HabitCheckInPage extends StatefulWidget {
   final HabitModel habit;
+  final VoidCallback fetchHabits;
 
-  const HabitCheckInPage({super.key, required this.habit});
+  const HabitCheckInPage(
+      {super.key, required this.habit, required this.fetchHabits});
 
   @override
   State<HabitCheckInPage> createState() => _HabitCheckInPageState();
 }
 
 class _HabitCheckInPageState extends State<HabitCheckInPage> {
-  DateTime now = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-  late int currentCount;
+  late DateTime now;
+  late DateTime yesterday;
+  int currentCount = 0;
   bool isLoading = false;
-
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
 
   @override
   void initState() {
     super.initState();
+    now =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    yesterday = now.subtract(const Duration(days: 1));
     fetchCurrentCount();
   }
 
@@ -70,58 +73,59 @@ class _HabitCheckInPageState extends State<HabitCheckInPage> {
     });
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     String habitID = widget.habit.habitID;
+    QuerySnapshot habitRecordSnapshot = await firestore
+        .collection('habitRecord')
+        .where('habitID', isEqualTo: habitID)
+        .where('date', isEqualTo: Timestamp.fromDate(now))
+        .get();
+    if (habitRecordSnapshot.docs.isNotEmpty) {
+      habitRecordRef = habitRecordSnapshot.docs.first.reference;
+      var data = habitRecordSnapshot.docs.first.data() as Map<String, dynamic>;
+      records = data['record'] ?? [];
+    } else {
+      habitRecordRef = firestore.collection('habitRecord').doc();
+    }
+
+    records.add(Timestamp.now());
+    currentCount = records.length;
+    bool status = currentCount == widget.habit.habitCount;
+
     try {
-      QuerySnapshot habitRecordSnapshot = await firestore
+      QuerySnapshot yesterdaySnapshot = await firestore
           .collection('habitRecord')
           .where('habitID', isEqualTo: habitID)
-          .where('date', isEqualTo: Timestamp.fromDate(now))
+          .where('date', isLessThan: Timestamp.fromDate(now))
+          .limit(1)
           .get();
-      if (habitRecordSnapshot.docs.isNotEmpty) {
-        habitRecordRef = habitRecordSnapshot.docs.first.reference;
-        var data =
-            habitRecordSnapshot.docs.first.data() as Map<String, dynamic>;
-        records = data['record'] ?? [];
-      } else {
-        habitRecordRef = firestore.collection('habitRecord').doc();
-      }
-
-      records.add(Timestamp.now());
-      currentCount = records.length;
-      bool status = currentCount == widget.habit.habitCount;
-
-      if (status) {
-        DateTime yesterday = now.subtract(const Duration(days: 1));
-        QuerySnapshot yesterdaySnapshot = await firestore
-            .collection('habitRecord')
-            .where('habitID', isEqualTo: habitID)
-            .where('date', isEqualTo: Timestamp.fromDate(yesterday))
-            .get();
-        if (yesterdaySnapshot.docs.isNotEmpty &&
-            yesterdaySnapshot.docs.first['status'] == true) {
-          streak = yesterdaySnapshot.docs.first['streak'] + 1;
+      if (yesterdaySnapshot.docs.isNotEmpty) {
+        if (status) {
+          if (yesterdaySnapshot.docs.first['status'] == true) {
+            streak = yesterdaySnapshot.docs.first['streak'] + 1;
+          } else {
+            streak = 1;
+          }
         } else {
-          streak = 1;
+          if (yesterdaySnapshot.docs.first['status'] == true) {
+            streak = yesterdaySnapshot.docs.first['streak'];
+          } else {
+            streak = 0;
+          }
         }
-      } else if (habitRecordSnapshot.docs.isNotEmpty) {
-        streak = habitRecordSnapshot
-            .docs.first['streak'];
+      } else {
+        streak = status ? 1 : 0;
       }
       await habitRecordRef.set({
         'date': Timestamp.fromDate(now),
         'habitID': habitID,
         'record': records,
         'status': status,
-        'streak': status ? streak : 0,
+        'streak': streak,
       });
       scaffoldMessengerKey.currentState?.showSnackBar(
         const SnackBar(content: Text('Habit record submitted successfully')),
       );
-      Navigator.pushReplacement(
-        scaffoldMessengerKey.currentContext!,
-        MaterialPageRoute(
-          builder: (context) => const HabitsPage(),
-        ),
-      );
+      Navigator.pop(scaffoldMessengerKey.currentContext!, true);
+      widget.fetchHabits();
     } catch (e) {
       scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(content: Text('Failed to submit habit record: $e')),
@@ -147,7 +151,7 @@ class _HabitCheckInPageState extends State<HabitCheckInPage> {
               color: Colors.white,
             ),
             onPressed: () {
-              Navigator.pop(context, true);
+              Navigator.pop(context, false);
             },
           ),
           title: Text(
