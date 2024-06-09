@@ -5,13 +5,14 @@ import 'package:habitual_heart_app/models/habit_model.dart';
 import 'package:habitual_heart_app/models/habit_record_model.dart';
 import 'package:habitual_heart_app/pages/edit_habit_page.dart';
 import 'package:habitual_heart_app/pages/habit_check_in_page.dart';
-import 'package:habitual_heart_app/pages/habits_page.dart';
 
 class HabitCard extends StatefulWidget {
-  const HabitCard({super.key, required this.habit, this.record});
+  const HabitCard(
+      {super.key, required this.habit, this.record, required this.fetchHabits});
 
   final HabitModel habit;
   final HabitRecordModel? record;
+  final VoidCallback fetchHabits;
 
   @override
   State<HabitCard> createState() => _HabitCardState();
@@ -20,6 +21,7 @@ class HabitCard extends StatefulWidget {
 class _HabitCardState extends State<HabitCard> {
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
+
   @override
   Widget build(BuildContext context) {
     return ScaffoldMessenger(
@@ -29,7 +31,8 @@ class _HabitCardState extends State<HabitCard> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => HabitCheckInPage(habit: widget.habit),
+              builder: (context) => HabitCheckInPage(
+                  habit: widget.habit, fetchHabits: widget.fetchHabits),
             ),
           );
         },
@@ -45,13 +48,16 @@ class _HabitCardState extends State<HabitCard> {
                   caption: 'Edit',
                   color: Colors.lightGreenAccent,
                   icon: Icons.edit,
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
                               EditHabitPage(habit: widget.habit)),
                     );
+                    if (result == true) {
+                      widget.fetchHabits();
+                    }
                   },
                 ),
               ),
@@ -150,13 +156,14 @@ class _HabitCardState extends State<HabitCard> {
         await doc.reference.delete();
       }
       if (scaffoldMessengerKey.currentContext != null) {
-        Navigator.pushReplacement(
-          scaffoldMessengerKey.currentContext!,
-          MaterialPageRoute(builder: (context) => const HabitsPage()),
-        );
+        // Navigator.pushReplacement(
+        //   scaffoldMessengerKey.currentContext!,
+        //   MaterialPageRoute(builder: (context) => const HabitsPage()),
+        // );
         ScaffoldMessenger.of(scaffoldMessengerKey.currentContext!).showSnackBar(
           const SnackBar(content: Text('Habit deleted successfully.')),
         );
+        widget.fetchHabits();
       }
     } catch (error) {
       if (scaffoldMessengerKey.currentContext != null) {
