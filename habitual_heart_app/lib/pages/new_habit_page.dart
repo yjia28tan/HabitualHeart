@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:habitual_heart_app/main.dart';
 import 'package:habitual_heart_app/design/font_style.dart';
 import 'package:habitual_heart_app/data/habit_category_list.dart';
-import 'package:habitual_heart_app/pages/habits_page.dart';
 
 class NewHabitPage extends StatefulWidget {
   const NewHabitPage({super.key});
@@ -53,11 +52,10 @@ class _NewHabitPageState extends State<NewHabitPage> {
         'habitCount': _habitCount,
       };
       habitCollection.doc(habitId).set(habitData).then((value) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Habit saved successfully.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Habit saved successfully.')));
         _clearFields();
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => const HabitsPage()));
+        Navigator.pop(context, true);
       }).catchError((error) {
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed to save habit: $error')));
@@ -108,7 +106,7 @@ class _NewHabitPageState extends State<NewHabitPage> {
           padding: const EdgeInsets.all(16.0),
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Icon(
-              _selectedIcon, // Your big icon
+              _selectedIcon,
               size: 100.0,
             ),
             const SizedBox(height: 16.0),
@@ -154,13 +152,13 @@ class _NewHabitPageState extends State<NewHabitPage> {
             const SizedBox(height: 6.0),
             DropdownButtonFormField(
               value: _selectedCategory,
-              items: categoryItems, // Your category items
+              items: categoryItems,
               onChanged: (value) {
                 setState(() {
                   _selectedCategory = value;
                   _selectedIcon = _getIconForCategory(value as String);
                 });
-              }, // Implement onChanged
+              },
               decoration: const InputDecoration(
                   hintText: 'Select category...',
                   border: OutlineInputBorder(
