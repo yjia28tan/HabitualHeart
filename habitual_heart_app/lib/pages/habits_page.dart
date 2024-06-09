@@ -35,6 +35,9 @@ class _HabitsPageState extends State<HabitsPage> {
   Future<void> fetchHabits() async {
     try {
       final uid = globalUID;
+      List<HabitModel> fetchedHabits = [];
+      Map<String, HabitRecordModel?> fetchedLatestRecordsMap = {};
+
       QuerySnapshot habitSnapshot = await FirebaseFirestore.instance
           .collection('habits')
           .where('userID', isEqualTo: uid)
@@ -44,9 +47,8 @@ class _HabitsPageState extends State<HabitsPage> {
         String habitID = doc.id;
         HabitModel habit =
             HabitModel.fromMap(habitID, doc.data() as Map<String, dynamic>);
-        habits.add(habit);
+        fetchedHabits.add(habit);
 
-        // Fetch latest record for the habit (if exists) and store it in the map
         QuerySnapshot recordSnapshot = await FirebaseFirestore.instance
             .collection('habitRecord')
             .where('habitID', isEqualTo: habitID)
@@ -56,14 +58,17 @@ class _HabitsPageState extends State<HabitsPage> {
 
         if (recordSnapshot.docs.isNotEmpty) {
           String habitRecordID = recordSnapshot.docs.first.id;
-          latestRecordsMap[habitID] = HabitRecordModel.fromMap(habitRecordID,
+          fetchedLatestRecordsMap[habitID] = HabitRecordModel.fromMap(
+              habitRecordID,
               recordSnapshot.docs.first.data() as Map<String, dynamic>);
         } else {
-          latestRecordsMap[habitID] = null;
+          fetchedLatestRecordsMap[habitID] = null;
         }
       }
-
-      setState(() {});
+      setState(() {
+        habits = fetchedHabits;
+        latestRecordsMap = fetchedLatestRecordsMap;
+      });
     } catch (e) {
       print("Error fetching: $e");
     }
@@ -83,7 +88,7 @@ class _HabitsPageState extends State<HabitsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, //disable back button
+        automaticallyImplyLeading: false,
         title: Text(
           "Habits",
           style: headerText,
@@ -125,7 +130,9 @@ class _HabitsPageState extends State<HabitsPage> {
                   child: Text(
                     category,
                     style: TextStyle(
-                      color: isSelected ? theme.bottomNavigationBarTheme.backgroundColor : theme.bottomNavigationBarTheme.unselectedItemColor,
+                      color: isSelected
+                          ? theme.bottomNavigationBarTheme.backgroundColor
+                          : theme.bottomNavigationBarTheme.unselectedItemColor,
                     ),
                   ),
                 );
@@ -137,10 +144,12 @@ class _HabitsPageState extends State<HabitsPage> {
                 ? ListView.builder(
                     itemCount: filterHabitsByCategory(selectedCategory).length,
                     itemBuilder: (context, index) {
-                      final filteredHabits = filterHabitsByCategory(selectedCategory);
+                      final filteredHabits =
+                          filterHabitsByCategory(selectedCategory);
                       return HabitCard(
                         habit: filteredHabits[index],
                         record: latestRecordsMap[filteredHabits[index].habitID],
+                        fetchHabits: fetchHabits,
                       );
                     },
                   )
@@ -156,13 +165,16 @@ class _HabitsPageState extends State<HabitsPage> {
           Icons.add,
           color: Colors.white,
         ),
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final result = await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (child) => const NewHabitPage(),
             ),
           );
+          if (result == true) {
+            fetchHabits();
+          }
         },
       ),
     );
