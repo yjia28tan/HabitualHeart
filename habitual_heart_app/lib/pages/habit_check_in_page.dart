@@ -95,21 +95,27 @@ class _HabitCheckInPageState extends State<HabitCheckInPage> {
           .collection('habitRecord')
           .where('habitID', isEqualTo: habitID)
           .where('date', isLessThan: Timestamp.fromDate(now))
+          .orderBy('date', descending: true)
           .limit(1)
           .get();
       if (yesterdaySnapshot.docs.isNotEmpty) {
-        if (status) {
-          if (yesterdaySnapshot.docs.first['status'] == true) {
-            streak = yesterdaySnapshot.docs.first['streak'] + 1;
+        if (yesterdaySnapshot.docs.first['date'] ==
+            Timestamp.fromDate(yesterday)) {
+          if (status) {
+            if (yesterdaySnapshot.docs.first['status'] == true) {
+              streak = yesterdaySnapshot.docs.first['streak'] + 1;
+            } else {
+              streak = 1;
+            }
           } else {
-            streak = 1;
+            if (yesterdaySnapshot.docs.first['status'] == true) {
+              streak = yesterdaySnapshot.docs.first['streak'];
+            } else {
+              streak = 0;
+            }
           }
         } else {
-          if (yesterdaySnapshot.docs.first['status'] == true) {
-            streak = yesterdaySnapshot.docs.first['streak'];
-          } else {
-            streak = 0;
-          }
+          streak = status ? 1 : 0;
         }
       } else {
         streak = status ? 1 : 0;
