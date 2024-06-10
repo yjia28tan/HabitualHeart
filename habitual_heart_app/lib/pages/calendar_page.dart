@@ -60,9 +60,12 @@ class _CalendarPageState extends State<CalendarPage> {
         .where('date', isLessThan: endOfDay)
         .get();
 
-    List<Map<String, dynamic>> completedHabits = habitRecordSnapshot.docs.map((doc) {
+    List<Map<String, dynamic>> completedHabits =
+        habitRecordSnapshot.docs.map((doc) {
       var data = doc.data();
-      var habitDetails = habitsSnapshot.docs.firstWhere((habit) => habit.id == data['habitID']).data();
+      var habitDetails = habitsSnapshot.docs
+          .firstWhere((habit) => habit.id == data['habitID'])
+          .data();
       return {
         'habitName': habitDetails['habitName'] ?? 'Unnamed Habit',
         'completionTime': data['date'],
@@ -107,22 +110,50 @@ class _CalendarPageState extends State<CalendarPage> {
   Icon _getMoodIcon(String mood) {
     switch (mood) {
       case 'Excellent':
-        return const Icon(Icons.sentiment_very_satisfied, color: Colors.green, size: 21,);
+        return const Icon(
+          Icons.sentiment_very_satisfied,
+          color: Colors.green,
+          size: 21,
+        );
       case 'Good':
-        return const Icon(Icons.sentiment_satisfied, color: Colors.lightGreen, size: 21,);
+        return const Icon(
+          Icons.sentiment_satisfied,
+          color: Colors.lightGreen,
+          size: 21,
+        );
       case 'Neutral':
-        return const Icon(Icons.sentiment_neutral, color: Colors.amber, size: 21,);
+        return const Icon(
+          Icons.sentiment_neutral,
+          color: Colors.amber,
+          size: 21,
+        );
       case 'Bad':
-        return const Icon(Icons.sentiment_dissatisfied, color: Colors.orange, size: 21,);
+        return const Icon(
+          Icons.sentiment_dissatisfied,
+          color: Colors.orange,
+          size: 21,
+        );
       case 'Terrible':
-        return const Icon(Icons.sentiment_very_dissatisfied, color: Colors.red, size: 21,);
+        return const Icon(
+          Icons.sentiment_very_dissatisfied,
+          color: Colors.red,
+          size: 21,
+        );
       default:
-        return const Icon(Icons.sentiment_neutral, color: Colors.grey, size: 21,);
+        return const Icon(
+          Icons.sentiment_neutral,
+          color: Colors.grey,
+          size: 21,
+        );
     }
   }
 
   Icon _getDefaultIcon() {
-    return const Icon(Icons.sentiment_neutral, color: Colors.grey, size: 21,);
+    return const Icon(
+      Icons.sentiment_neutral,
+      color: Colors.grey,
+      size: 21,
+    );
   }
 
   habitCategoryIcon(String category) {
@@ -164,30 +195,31 @@ class _CalendarPageState extends State<CalendarPage> {
               onDaySelected: _onDaySelected,
               calendarBuilders: CalendarBuilders(
                 defaultBuilder: (context, day, focusDay) {
-                  DateTime normalizedDay = DateTime(day.year, day.month, day.day);
-                    return Container(
-                      height: 50,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      margin: const EdgeInsets.all(4.0),
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '${day.day}',
+                  DateTime normalizedDay =
+                      DateTime(day.year, day.month, day.day);
+                  return Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    margin: const EdgeInsets.all(4.0),
+                    alignment: Alignment.center,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${day.day}',
                           style: const TextStyle(fontSize: 12),
-                          ),
-                          const SizedBox(height: 2),
-                          _moodMap.containsKey(normalizedDay)
-                              ? _getMoodIcon(_moodMap[normalizedDay]!)
-                              : _getDefaultIcon(),
-                        ],
-                      ),
-                    );
-                  },
+                        ),
+                        const SizedBox(height: 2),
+                        _moodMap.containsKey(normalizedDay)
+                            ? _getMoodIcon(_moodMap[normalizedDay]!)
+                            : _getDefaultIcon(),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
             // const SizedBox(height: 10),
@@ -195,7 +227,8 @@ class _CalendarPageState extends State<CalendarPage> {
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 _selectedMood != null ? 'Mood: $_selectedMood' : 'Mood: None',
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
               ),
             ),
             // const SizedBox(height: 1),
@@ -211,15 +244,19 @@ class _CalendarPageState extends State<CalendarPage> {
                       subtitle: Text(
                         'Last Record: ${habit['record'] != null && habit['record'].isNotEmpty ? DateFormat('h:mm:ss a').format((habit['record'].last as Timestamp).toDate().toLocal()) : 'No record'}',
                       ),
-                      trailing: habit['status'] ?
-                      const Text(
-                        'Completed',
-                        style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
-                      ) :
-                      const Text(
-                        'Incomplete',
-                        style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                      ),
+                      trailing: habit['status']
+                          ? const Text(
+                              'Completed',
+                              style: TextStyle(
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold),
+                            )
+                          : const Text(
+                              'Incomplete',
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold),
+                            ),
                     ),
                   );
                 },
