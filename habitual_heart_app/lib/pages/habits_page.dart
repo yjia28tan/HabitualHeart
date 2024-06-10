@@ -75,7 +75,7 @@ class _HabitsPageState extends State<HabitsPage> {
             .limit(1)
             .get();
 
-        if (todayStatusData['status'] == true) {
+        if (todayStatusSnapshot.docs.isNotEmpty && (todayStatusData['status'])) {
           fetchedStreaksMap[habitID] = todayStatusData['streak'];
         } else {
           if (yesterdayRecordSnapshot.docs.isNotEmpty) {
