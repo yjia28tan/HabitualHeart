@@ -168,23 +168,26 @@ class _HabitsPageState extends State<HabitsPage> {
           ),
           Expanded(
             child: filterHabitsByCategory(selectedCategory).isNotEmpty
-                ? ListView.builder(
-                    itemCount: filterHabitsByCategory(selectedCategory).length,
-                    itemBuilder: (context, index) {
-                      final filteredHabits =
-                          filterHabitsByCategory(selectedCategory);
-                      return HabitCard(
-                        habit: filteredHabits[index],
-                        yesterdayStreak:
-                            yesterdayStreakMap[filteredHabits[index].habitID] ??
-                                0,
-                        todayStatus:
-                            todayStatusMap[filteredHabits[index].habitID] ??
-                                false,
-                        fetchHabits: fetchHabits,
-                      );
-                    },
-                  )
+                ? Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ListView.builder(
+                      itemCount: filterHabitsByCategory(selectedCategory).length,
+                      itemBuilder: (context, index) {
+                        final filteredHabits =
+                            filterHabitsByCategory(selectedCategory);
+                        return HabitCard(
+                          habit: filteredHabits[index],
+                          yesterdayStreak:
+                              yesterdayStreakMap[filteredHabits[index].habitID] ??
+                                  0,
+                          todayStatus:
+                              todayStatusMap[filteredHabits[index].habitID] ??
+                                  false,
+                          fetchHabits: fetchHabits,
+                        );
+                      },
+                    ),
+                )
                 : const Center(
                     child: Text('No Record Found'),
                   ),
