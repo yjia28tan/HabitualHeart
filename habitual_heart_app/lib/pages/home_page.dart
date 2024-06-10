@@ -13,6 +13,8 @@ import '/widgets/navigation_bar.dart';
 import '/pages/user_profile_edit_page.dart';
 import 'mood_details_page.dart';
 import 'mood_entry_page.dart';
+import 'package:habitual_heart_app/models/habit_model.dart';
+import 'package:habitual_heart_app/widgets/habit_card.dart';
 
 class HomePage extends StatefulWidget {
   static String routeName = '/HomePage';
@@ -65,31 +67,30 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-
 // Global Variables
 String? moodID;
 String? todayMood;
 String? useruid;
 Icon? todayMoodIcon;
 
-
 class Home extends StatefulWidget {
-
-
   @override
   State<Home> createState() => _HomeState();
 }
 
-
 class _HomeState extends State<Home> {
-  String formattedDate = DateFormat('EEEE, MMMM d, yyyy').format(DateTime.now());
+  String formattedDate =
+      DateFormat('EEEE, MMMM d, yyyy').format(DateTime.now());
   String selectedEmoji = '';
+  List<HabitModel> habits = [];
+  Map<String, int> yesterdayStreakMap = {};
+  Map<String, bool> todayStatusMap = {};
 
   @override
   void initState() {
     super.initState();
     _fetchTodayMood();
-
+    fetchHabits();
   }
 
   Future<void> _fetchTodayMood() async {
@@ -108,7 +109,8 @@ class _HomeState extends State<Home> {
           .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
           .where('timestamp', isGreaterThanOrEqualTo: startOfDay)
           .where('timestamp', isLessThan: endOfDay)
-          .orderBy('timestamp', descending: true) // Order by timestamp in descending order
+          .orderBy('timestamp',
+              descending: true) // Order by timestamp in descending order
           .limit(1) // Limit to 1 document
           .get();
 
@@ -127,33 +129,119 @@ class _HomeState extends State<Home> {
           useruid = null; // Assuming you want to reset useruid as well
           moodID = null; // Reset moodID if no mood record found
         });
-        print( 'No mood record found for today');
+        print('No mood record found for today');
       }
     } catch (error) {
       showAlert(context, 'Error', 'Error fetching today\'s mood: $error');
     }
   }
 
-
   void _updateMoodIcon(String mood) {
     switch (mood) {
       case 'Excellent':
-        todayMoodIcon = Icon(Icons.sentiment_very_satisfied, size: 90,);
+        todayMoodIcon = Icon(
+          Icons.sentiment_very_satisfied,
+          size: 90,
+        );
         break;
       case 'Good':
-        todayMoodIcon = Icon(Icons.sentiment_satisfied, size: 90,);
+        todayMoodIcon = Icon(
+          Icons.sentiment_satisfied,
+          size: 90,
+        );
         break;
       case 'Neutral':
-        todayMoodIcon = Icon(Icons.sentiment_neutral, size: 90,);
+        todayMoodIcon = Icon(
+          Icons.sentiment_neutral,
+          size: 90,
+        );
         break;
       case 'Bad':
-        todayMoodIcon = Icon(Icons.sentiment_dissatisfied, size: 90,);
+        todayMoodIcon = Icon(
+          Icons.sentiment_dissatisfied,
+          size: 90,
+        );
         break;
       case 'Terrible':
-        todayMoodIcon = Icon(Icons.sentiment_very_dissatisfied, size: 90,);
+        todayMoodIcon = Icon(
+          Icons.sentiment_very_dissatisfied,
+          size: 90,
+        );
         break;
       default:
         todayMoodIcon = null; // Set to null if mood is not recognized
+    }
+  }
+
+  Future<void> fetchHabits() async {
+    try {
+      final uid = globalUID;
+      List<HabitModel> fetchedHabits = [];
+      Map<String, int> fetchedStreaksMap = {};
+      Map<String, bool> fetchedStatusMap = {};
+      Map<String, dynamic> todayStatusData = {};
+      DateTime now = DateTime(
+          DateTime.now().year, DateTime.now().month, DateTime.now().day);
+      DateTime yesterday = now.subtract(const Duration(days: 1));
+
+      QuerySnapshot habitSnapshot = await FirebaseFirestore.instance
+          .collection('habits')
+          .where('userID', isEqualTo: uid)
+          .get();
+
+      for (QueryDocumentSnapshot doc in habitSnapshot.docs) {
+        String habitID = doc.id;
+        HabitModel habit =
+            HabitModel.fromMap(habitID, doc.data() as Map<String, dynamic>);
+        fetchedHabits.add(habit);
+
+        QuerySnapshot todayStatusSnapshot = await FirebaseFirestore.instance
+            .collection('habitRecord')
+            .where('habitID', isEqualTo: habitID)
+            .where('date', isEqualTo: Timestamp.fromDate(now))
+            .limit(1)
+            .get();
+
+        if (todayStatusSnapshot.docs.isNotEmpty) {
+          todayStatusData =
+              todayStatusSnapshot.docs.first.data() as Map<String, dynamic>;
+          fetchedStatusMap[habitID] = todayStatusData['status'];
+        } else {
+          fetchedStatusMap[habitID] = false;
+        }
+
+        QuerySnapshot yesterdayRecordSnapshot = await FirebaseFirestore.instance
+            .collection('habitRecord')
+            .where('habitID', isEqualTo: habitID)
+            .where('date', isLessThan: Timestamp.fromDate(now))
+            .orderBy('date', descending: true)
+            .limit(1)
+            .get();
+
+        if (todayStatusSnapshot.docs.isNotEmpty &&
+            (todayStatusData['status'])) {
+          fetchedStreaksMap[habitID] = todayStatusData['streak'];
+        } else {
+          if (yesterdayRecordSnapshot.docs.isNotEmpty) {
+            var yesterdayRecordData = yesterdayRecordSnapshot.docs.first.data()
+                as Map<String, dynamic>;
+            if (yesterdayRecordData['date'] == Timestamp.fromDate(yesterday)) {
+              fetchedStreaksMap[habitID] = yesterdayRecordData['streak'];
+            } else {
+              fetchedStreaksMap[habitID] = 0;
+            }
+          } else {
+            fetchedStreaksMap[habitID] = 0;
+          }
+        }
+      }
+      setState(() {
+        habits = fetchedHabits;
+        yesterdayStreakMap = fetchedStreaksMap;
+        todayStatusMap = fetchedStatusMap;
+      });
+    } catch (e) {
+      print("Error fetching: $e");
     }
   }
 
@@ -161,7 +249,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, // Disable back button
+        automaticallyImplyLeading: false,
         title: Center(
           child: Text(
             formattedDate,
@@ -204,9 +292,7 @@ class _HomeState extends State<Home> {
                 ],
               ),
             ),
-
             SizedBox(height: 20),
-            // Habits column
             Padding(
               padding: const EdgeInsets.fromLTRB(20.0, 2.0, 20.0, 12.0),
               child: Column(
@@ -226,6 +312,28 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                   SizedBox(height: 10.0),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: habits.length,
+                    itemBuilder: (context, index) {
+                      HabitModel habit = habits[index];
+                      int yesterdayStreak =
+                          yesterdayStreakMap[habit.habitID] ?? 0;
+                      bool todayStatus = todayStatusMap[habit.habitID] ?? false;
+                      if (!todayStatusMap.containsKey(habit.habitID) ||
+                          !todayStatusMap[habit.habitID]!) {
+                        return HabitCard(
+                          habit: habit,
+                          yesterdayStreak: yesterdayStreak,
+                          todayStatus: todayStatus,
+                          fetchHabits: fetchHabits,
+                        );
+                      } else {
+                        return Container();
+                      }
+                    },
+                  )
                 ],
               ),
             ),
@@ -248,7 +356,7 @@ class _HomeState extends State<Home> {
         );
       },
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20.0,12.0,20.0,10.0),
+        padding: const EdgeInsets.fromLTRB(20.0, 12.0, 20.0, 10.0),
         child: Container(
           height: 120,
           decoration: BoxDecoration(
@@ -262,7 +370,7 @@ class _HomeState extends State<Home> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              todayMoodIcon ?? Icon( todayMoodIcon as IconData?),
+              todayMoodIcon ?? Icon(todayMoodIcon as IconData?),
               Text(
                 todayMood!,
                 style: userName_display,
@@ -283,13 +391,12 @@ class MoodRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20.0,12.0,20.0,10.0),
+      padding: const EdgeInsets.fromLTRB(20.0, 12.0, 20.0, 10.0),
       child: Column(
         children: [
           Container(
             height: 120,
             decoration: BoxDecoration(
-
               color: Color(0xFFE5FFD0).withOpacity(0.3), // Background color
               border: Border.all(
                 color: Color(0xFF366021), // Border color
@@ -376,6 +483,5 @@ class MoodIcon extends StatelessWidget {
         ],
       ),
     );
-
   }
 }
