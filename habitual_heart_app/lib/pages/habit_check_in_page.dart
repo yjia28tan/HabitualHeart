@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:habitual_heart_app/design/font_style.dart';
 import 'package:habitual_heart_app/models/habit_model.dart';
+import 'package:habitual_heart_app/pages/home_page.dart';
 
 class HabitCheckInPage extends StatefulWidget {
   final HabitModel habit;
@@ -130,7 +131,13 @@ class _HabitCheckInPageState extends State<HabitCheckInPage> {
       scaffoldMessengerKey.currentState?.showSnackBar(
         const SnackBar(content: Text('Habit record submitted successfully')),
       );
-      Navigator.pop(scaffoldMessengerKey.currentContext!, true);
+      Navigator.of(context).pop();
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const HomePage(),
+        ),
+      );
       widget.fetchHabits();
     } catch (e) {
       scaffoldMessengerKey.currentState?.showSnackBar(
