@@ -75,7 +75,8 @@ class _HabitsPageState extends State<HabitsPage> {
             .limit(1)
             .get();
 
-        if (todayStatusSnapshot.docs.isNotEmpty && (todayStatusData['status'])) {
+        if (todayStatusSnapshot.docs.isNotEmpty &&
+            (todayStatusData['status'])) {
           fetchedStreaksMap[habitID] = todayStatusData['streak'];
         } else {
           if (yesterdayRecordSnapshot.docs.isNotEmpty) {
@@ -169,17 +170,18 @@ class _HabitsPageState extends State<HabitsPage> {
           Expanded(
             child: filterHabitsByCategory(selectedCategory).isNotEmpty
                 ? Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ListView.builder(
-                      itemCount: filterHabitsByCategory(selectedCategory).length,
+                    padding: const EdgeInsets.all(8.0),
+                    child: ListView.builder(
+                      itemCount:
+                          filterHabitsByCategory(selectedCategory).length,
                       itemBuilder: (context, index) {
                         final filteredHabits =
                             filterHabitsByCategory(selectedCategory);
                         return HabitCard(
                           habit: filteredHabits[index],
-                          yesterdayStreak:
-                              yesterdayStreakMap[filteredHabits[index].habitID] ??
-                                  0,
+                          yesterdayStreak: yesterdayStreakMap[
+                                  filteredHabits[index].habitID] ??
+                              0,
                           todayStatus:
                               todayStatusMap[filteredHabits[index].habitID] ??
                                   false,
@@ -187,7 +189,7 @@ class _HabitsPageState extends State<HabitsPage> {
                         );
                       },
                     ),
-                )
+                  )
                 : const Center(
                     child: Text('No Record Found'),
                   ),
