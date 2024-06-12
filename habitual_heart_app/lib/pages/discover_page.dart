@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:habitual_heart_app/design/font_style.dart';
+import 'package:url_launcher/url_launcher.dart'; // Import url_launcher package
 import '../models/meditation_tools.dart';
 import '../widgets/cardview_discover.dart';
 import 'package:habitual_heart_app/data/get_quotes_with_api.dart';
 import '/models/quote_model.dart';
 import '/pages/meditation_guide_page.dart';
 import 'package:habitual_heart_app/data/youtube_services.dart'; // Import YouTube service
-import 'video_player.dart'; // Import Video player screen
 
 class DiscoverPage extends StatefulWidget {
   static String routeName = '/DiscoverPage';
@@ -28,6 +28,14 @@ class _DiscoverPageState extends State<DiscoverPage> {
     super.initState();
     quoteFuture = qouoteData.getQuote();
     videoFuture = _youTubeService.fetchMeditationVideos();
+  }
+
+  Future<void> _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   @override
@@ -56,7 +64,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                     padding: const EdgeInsets.all(16.0),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Color(0xFFE5FFD0).withOpacity(0.7),// Background color
+                        color: Color(0xFFE5FFD0).withOpacity(0.7), // Background color
                         borderRadius: BorderRadius.circular(15.0),
                       ),
                       padding: const EdgeInsets.all(16.0),
@@ -74,7 +82,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                               children: [
                                 const Icon(
                                   Icons.person_pin_sharp,
-                                  color: Color(0xFF366021,),
+                                  color: Color(0xFF366021),
                                 ),
                                 Text(
                                   ' ${quote?.author ?? 'Unknown'}',
@@ -204,20 +212,11 @@ class _DiscoverPageState extends State<DiscoverPage> {
                     itemCount: videos.length,
                     itemBuilder: (context, index) {
                       final video = videos[index];
-                      print(video);
                       return ListTile(
                         title: Text(video['title']!),
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (
-                                  context) => VideoPlayerScreen(
-                                  videoId: video['videoId']!
-                              ),
-                            ),
-                          );
-                          print(video['videoId']!);
+                          final url = 'https://www.youtube.com/watch?v=${video['videoId']}';
+                          _launchURL(url);
                         },
                       );
                     },

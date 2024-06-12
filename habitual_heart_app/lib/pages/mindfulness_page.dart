@@ -74,6 +74,10 @@ class _MindfulnessGuideContentState extends State<MindfulnessGuideContent> {
                       title: '90 Minutes of Peaceful Calm Floating Music for Meditation, Relaxation & Sleep by Relax Unwind Meditate',
                       audioPath: 'audio/90Minutes_sleep_music.mp3',
                     ),
+                    _buildMeditationSection(
+                      title: 'Mindfulness Meditation on Sounds, Thoughts and Emotions by Dr. Roberto Benzo (20 mins)',
+                      audioPath: 'audio/mindfulness-meditation-on-sounds-thoughts-emotion.mp3',
+                    ),
                   ],
                 ),
               ),
