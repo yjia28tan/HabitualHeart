@@ -5,6 +5,7 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import '../main.dart';
 import '../widgets/alert_dialog_widget.dart';
+import 'notification_manager.dart';
 
 class SetReminder extends StatefulWidget {
   @override
@@ -19,7 +20,6 @@ class _SetReminderState extends State<SetReminder> {
   void initState() {
     super.initState();
     fetchReminderStatus();
-    // _scheduleNotification();
   }
 
   void fetchReminderStatus() async {
@@ -84,7 +84,6 @@ class _SetReminderState extends State<SetReminder> {
     }
   }
 
-
   void _saveReminderStatus() async {
     final uid = globalUID;
     if (uid != null) {
@@ -92,58 +91,43 @@ class _SetReminderState extends State<SetReminder> {
         'dailyReminder': _dailyReminder,
         'reminderTime': _reminderTime?.format(context) ?? '',
       });
+
+      if (_dailyReminder && _reminderTime != null) {
+        final now = tz.TZDateTime.now(tz.local);
+        final scheduledTime = tz.TZDateTime(
+          tz.local,
+          now.year,
+          now.month,
+          now.day,
+          _reminderTime!.hour,
+          _reminderTime!.minute,
+        ).isBefore(now)
+            ? tz.TZDateTime(
+          tz.local,
+          now.year,
+          now.month,
+          now.day + 1,
+          _reminderTime!.hour,
+          _reminderTime!.minute,
+        )
+            : tz.TZDateTime(
+          tz.local,
+          now.year,
+          now.month,
+          now.day,
+          _reminderTime!.hour,
+          _reminderTime!.minute,
+        );
+
+        await NotificationManager.scheduleNotification(
+          1, // notification id
+          'Daily Reminder',
+          'It\'s time to track your mood and habits!',
+          scheduledTime,
+        );
+      }
     }
   }
-
-  // void _scheduleNotification() async {
-  //   if (_dailyReminder && _reminderTime != null) {
-  //     final now = tz.TZDateTime.now(tz.local);
-  //     final scheduledDate = tz.TZDateTime(
-  //       tz.local,
-  //       now.year,
-  //       now.month,
-  //       now.day,
-  //       _reminderTime!.hour,
-  //       _reminderTime!.minute,
-  //     );
-  //     const AndroidNotificationDetails androidPlatformChannelSpecifics =
-  //     AndroidNotificationDetails(
-  //       'daily_reminder_channel',
-  //       'Daily Reminder',
-  //       channelDescription: 'Daily reminder notifications',
-  //       importance: Importance.max,
-  //       priority: Priority.high,
-  //     );
-  //
-  //     const NotificationDetails platformChannelSpecifics = NotificationDetails(
-  //       android: androidPlatformChannelSpecifics,
-  //     );
-  //
-  //     await flutterLocalNotificationsPlugin.zonedSchedule(
-  //       0,
-  //       'Daily Reminder',
-  //       'This is your daily reminder!',
-  //       _nextInstanceOfTime(scheduledDate),
-  //       platformChannelSpecifics,
-  //       androidAllowWhileIdle: true,
-  //       uiLocalNotificationDateInterpretation:
-  //       UILocalNotificationDateInterpretation.absoluteTime,
-  //       matchDateTimeComponents: DateTimeComponents.time,
-  //     );
-  //   }
-  // }
-  //
-  // tz.TZDateTime _nextInstanceOfTime(tz.TZDateTime scheduledDate) {
-  //   final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-  //   if (scheduledDate.isBefore(now)) {
-  //     scheduledDate = scheduledDate.add(const Duration(days: 1));
-  //   }
-  //   return scheduledDate;
-  // }
-  //
-  // void _cancelNotification() async {
-  //   await flutterLocalNotificationsPlugin.cancel(0);
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +161,4 @@ class _SetReminderState extends State<SetReminder> {
       inactiveTrackColor: Colors.blueGrey[700],
     );
   }
-
-
-
 }

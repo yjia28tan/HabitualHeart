@@ -34,8 +34,6 @@ class _HomePageState extends State<HomePage> {
     ProfilePage();
     EditProfilePage();
     DiscoverPage();
-
-    print(globalUID);
   }
 
   List<Widget> screens = [
