@@ -31,10 +31,19 @@ class _DiscoverPageState extends State<DiscoverPage> {
   }
 
   Future<void> _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
+    try {
+      bool launched = await launch(url);
+      if (!launched) {
+        throw 'Could not launch $url';
+      }
+    } catch (e) {
+      print('Error launching URL: $e');
+      // Fallback to opening in web browser if YouTube app cannot handle the URL
+      if (await canLaunch(url)) {
+        await launch(url, forceSafariVC: false);
+      } else {
+        throw 'Could not launch $url';
+      }
     }
   }
 
