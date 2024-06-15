@@ -29,27 +29,28 @@ Version: Hedgehog | 2023.1.1 Patch 2
 Firebase
 
 **APIs and Third-Party Libraries**
-- cupertino_icons: ^1.0.6
-- firebase_core: ^2.32.0
-- firebase_auth: ^4.20.0
-- firebase_ui_auth: ^1.14.0
-- firebase_database: ^10.0.0
-- cloud_firestore: ^4.17.2
-- google_fonts: ^4.0.4
-- intl: 0.18.1
-- provider: ^6.1.2
-- http: ^1.2.1
-- url_launcher: ^6.0.10
-- flutter_local_notifications: ^17.1.2
-- timezone: ^0.9.3
-- flutter_slidable: ^0.6.0
-- flutter_tts: ^4.0.2
-- audioplayers: ^6.0.0
-- table_calendar: ^3.0.0
+ -  cupertino_icons: ^1.0.6
+ - firebase_core: ^3.1.0
+ - firebase_auth: ^5.1.0
+ - firebase_ui_auth: ^1.14.0
+ - firebase_database: ^11.0.1
+ - cloud_firestore: ^5.0.1
+ - google_fonts: ^6.2.1
+ - intl: 0.18.1
+ - provider: ^6.1.2
+ - http: ^1.2.1
+ - url_launcher: ^6.0.10
+ - flutter_local_notifications: ^17.1.2
+ - timezone: ^0.9.3
+ - flutter_slidable: ^0.6.0
+ - flutter_tts: ^4.0.2
+ - audioplayers: ^6.0.0
+ - table_calendar: ^3.0.0
 
-APIs:
+**APIs:**
 - YouTube Video API
-- Daily Quotes API (from GitHub)
+- Daily Quotes API (Quotable from GitHub)
+  - https://github.com/lukePeavey/quotable
 
 
 **Additional Steps to Run the Program**
