@@ -118,6 +118,9 @@ class _DiscoverPageState extends State<DiscoverPage> {
               itemCount: meditationTools.length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
+                crossAxisSpacing: 8.0,
+                mainAxisSpacing: 8.0,
+                childAspectRatio: 0.75, // Adjust this ratio as per your design
               ),
               itemBuilder: (context, index) {
                 final tool = meditationTools[index];
@@ -130,66 +133,19 @@ class _DiscoverPageState extends State<DiscoverPage> {
                       ),
                     );
                   },
-                  child: Container(
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: MeditationToolCard(
-                            backgroundImage: tool.backgroundImage,
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(tool.icon, color: Color(0xFF366021)),
-                            SizedBox(width: 8.0),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => MeditationGuidePage(tool: tool),
-                                        ),
-                                      );
-                                    },
-                                    child: Text(
-                                      tool.title,
-                                      style: homeSubHeaderText,
-                                    ),
-                                  ),
-                                  SizedBox(height: 4.0),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => MeditationGuidePage(tool: tool),
-                                        ),
-                                      );
-                                    },
-                                    child: Text(
-                                      tool.description,
-                                      maxLines: 3, // Set maximum lines
-                                      overflow: TextOverflow.ellipsis, // Add ellipsis if text exceeds lines
-                                      style: TextStyle(fontSize: 14.0),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: MeditationToolCard(
+                      backgroundImage: tool.backgroundImage,
+                      iconData: tool.icon,
+                      title: tool.title,
+                      description: tool.description,
                     ),
                   ),
                 );
               },
             ),
+
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(

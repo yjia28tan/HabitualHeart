@@ -34,6 +34,7 @@ class _HomePageState extends State<HomePage> {
     ProfilePage();
     EditProfilePage();
     DiscoverPage();
+
   }
 
   List<Widget> screens = [
@@ -78,7 +79,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String formattedDate =
-      DateFormat('EEEE, MMMM d, yyyy').format(DateTime.now());
+      DateFormat('E, MMM d, yyyy').format(DateTime.now());
   String selectedEmoji = '';
   List<HabitModel> habits = [];
   Map<String, int> yesterdayStreakMap = {};
@@ -402,35 +403,38 @@ class MoodRow extends StatelessWidget {
               ),
               borderRadius: BorderRadius.circular(8.0), // Border radius
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                MoodIcon(
-                  icon: Icons.sentiment_very_satisfied,
-                  label: 'Excellent',
-                  onSelected: onMoodSelected,
-                ),
-                MoodIcon(
-                  icon: Icons.sentiment_satisfied,
-                  label: 'Good',
-                  onSelected: onMoodSelected,
-                ),
-                MoodIcon(
-                  icon: Icons.sentiment_neutral,
-                  label: 'Neutral',
-                  onSelected: onMoodSelected,
-                ),
-                MoodIcon(
-                  icon: Icons.sentiment_dissatisfied,
-                  label: 'Bad',
-                  onSelected: onMoodSelected,
-                ),
-                MoodIcon(
-                  icon: Icons.sentiment_very_dissatisfied,
-                  label: 'Terrible',
-                  onSelected: onMoodSelected,
-                ),
-              ],
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  MoodIcon(
+                    icon: Icons.sentiment_very_satisfied,
+                    label: 'Excellent',
+                    onSelected: onMoodSelected,
+                  ),
+                  MoodIcon(
+                    icon: Icons.sentiment_satisfied,
+                    label: 'Good',
+                    onSelected: onMoodSelected,
+                  ),
+                  MoodIcon(
+                    icon: Icons.sentiment_neutral,
+                    label: 'Neutral',
+                    onSelected: onMoodSelected,
+                  ),
+                  MoodIcon(
+                    icon: Icons.sentiment_dissatisfied,
+                    label: 'Bad',
+                    onSelected: onMoodSelected,
+                  ),
+                  MoodIcon(
+                    icon: Icons.sentiment_very_dissatisfied,
+                    label: 'Terrible',
+                    onSelected: onMoodSelected,
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -438,6 +442,7 @@ class MoodRow extends StatelessWidget {
     );
   }
 }
+
 
 class MoodIcon extends StatelessWidget {
   final IconData icon;

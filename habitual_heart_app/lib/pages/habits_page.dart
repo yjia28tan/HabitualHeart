@@ -126,45 +126,51 @@ class _HabitsPageState extends State<HabitsPage> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: habitCategoryListItem.map((category) {
-                final isSelected = category == selectedCategory;
-                return ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      selectedCategory = category;
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                      foregroundColor: isSelected
-                          ? theme.bottomNavigationBarTheme.backgroundColor
-                          : theme.bottomNavigationBarTheme.selectedItemColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        side: BorderSide(
-                          color: isSelected
-                              ? Colors.transparent
-                              : theme.bottomNavigationBarTheme
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: habitCategoryListItem.map((category) {
+                  final isSelected = category == selectedCategory;
+                  return Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          selectedCategory = category;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                          foregroundColor: isSelected
+                              ? theme.bottomNavigationBarTheme.backgroundColor
+                              : theme.bottomNavigationBarTheme.selectedItemColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            side: BorderSide(
+                              color: isSelected
+                                  ? Colors.transparent
+                                  : theme.bottomNavigationBarTheme
                                   .unselectedItemColor!,
-                          width: 1.5,
+                              width: 1.5,
+                            ),
+                          ),
+                          backgroundColor: isSelected
+                              ? theme.bottomNavigationBarTheme.unselectedItemColor
+                              : theme.bottomNavigationBarTheme.backgroundColor,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 8.0)),
+                      child: Text(
+                        category,
+                        style: TextStyle(
+                          color: isSelected
+                              ? theme.bottomNavigationBarTheme.backgroundColor
+                              : theme.bottomNavigationBarTheme.unselectedItemColor,
                         ),
                       ),
-                      backgroundColor: isSelected
-                          ? theme.bottomNavigationBarTheme.unselectedItemColor
-                          : theme.bottomNavigationBarTheme.backgroundColor,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 8.0)),
-                  child: Text(
-                    category,
-                    style: TextStyle(
-                      color: isSelected
-                          ? theme.bottomNavigationBarTheme.backgroundColor
-                          : theme.bottomNavigationBarTheme.unselectedItemColor,
                     ),
-                  ),
-                );
-              }).toList(),
+                  );
+                }).toList(),
+              ),
             ),
           ),
           Expanded(

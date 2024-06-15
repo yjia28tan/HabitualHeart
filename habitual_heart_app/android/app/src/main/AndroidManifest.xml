@@ -29,6 +29,32 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <receiver
+            android:name="com.dexterous.flutterlocalnotifications.receivers.ActionReceiver"
+            android:exported="true"/>
+
+        <receiver
+            android:name="com.dexterous.flutterlocalnotifications.receivers.DismissedReceiver"
+            android:exported="true"/>
+
+        <receiver
+            android:name="com.dexterous.flutterlocalnotifications.receivers.NotificationReceiver"
+            android:exported="true"/>
+
+        <service
+            android:name="com.dexterous.flutterlocalnotifications.BackgroundService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="true"/>
+
+        <service
+            android:name="com.dexterous.flutterlocalnotifications.IsolateService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="true"/>
+
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2"/>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility?hl=en and

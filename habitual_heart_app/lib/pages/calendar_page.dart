@@ -30,7 +30,7 @@ class _CalendarPageState extends State<CalendarPage> {
   Future<void> _fetchDataForSelectedDay() async {
     final uid = globalUID;
     final startOfDay =
-        DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day);
+    DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day);
     final endOfDay = startOfDay.add(const Duration(days: 1));
 
     final moodSnapshot = await FirebaseFirestore.instance
@@ -61,7 +61,7 @@ class _CalendarPageState extends State<CalendarPage> {
         .get();
 
     List<Map<String, dynamic>> completedHabits =
-        habitRecordSnapshot.docs.map((doc) {
+    habitRecordSnapshot.docs.map((doc) {
       var data = doc.data();
       var habitDetails = habitsSnapshot.docs
           .firstWhere((habit) => habit.id == data['habitID'])
@@ -179,61 +179,61 @@ class _CalendarPageState extends State<CalendarPage> {
           style: headerText,
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            TableCalendar(
-              headerStyle: const HeaderStyle(
-                formatButtonVisible: false,
-                titleCentered: true,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              TableCalendar(
+                headerStyle: const HeaderStyle(
+                  formatButtonVisible: false,
+                  titleCentered: true,
+                ),
+                firstDay: DateTime.utc(2000, 1, 1),
+                lastDay: DateTime.utc(2100, 12, 31),
+                focusedDay: _selectedDay,
+                selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                onDaySelected: _onDaySelected,
+                calendarBuilders: CalendarBuilders(
+                  defaultBuilder: (context, day, focusDay) {
+                    DateTime normalizedDay =
+                    DateTime(day.year, day.month, day.day);
+                    return Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      margin: const EdgeInsets.all(4.0),
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '${day.day}',
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                          const SizedBox(height: 2),
+                          _moodMap.containsKey(normalizedDay)
+                              ? _getMoodIcon(_moodMap[normalizedDay]!)
+                              : _getDefaultIcon(),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
-              firstDay: DateTime.utc(2000, 1, 1),
-              lastDay: DateTime.utc(2100, 12, 31),
-              focusedDay: _selectedDay,
-              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-              onDaySelected: _onDaySelected,
-              calendarBuilders: CalendarBuilders(
-                defaultBuilder: (context, day, focusDay) {
-                  DateTime normalizedDay =
-                      DateTime(day.year, day.month, day.day);
-                  return Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    margin: const EdgeInsets.all(4.0),
-                    alignment: Alignment.center,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          '${day.day}',
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                        const SizedBox(height: 2),
-                        _moodMap.containsKey(normalizedDay)
-                            ? _getMoodIcon(_moodMap[normalizedDay]!)
-                            : _getDefaultIcon(),
-                      ],
-                    ),
-                  );
-                },
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  _selectedMood != null ? 'Mood: $_selectedMood' : 'Mood: None',
+                  style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.bold),
+                ),
               ),
-            ),
-            // const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                _selectedMood != null ? 'Mood: $_selectedMood' : 'Mood: None',
-                style:
-                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-              ),
-            ),
-            // const SizedBox(height: 1),
-            Expanded(
-              child: ListView.builder(
+              ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
                 itemCount: _completedHabits.length,
                 itemBuilder: (context, index) {
                   final habit = _completedHabits[index];
@@ -246,23 +246,23 @@ class _CalendarPageState extends State<CalendarPage> {
                       ),
                       trailing: habit['status']
                           ? const Text(
-                              'Completed',
-                              style: TextStyle(
-                                  color: Colors.green,
-                                  fontWeight: FontWeight.bold),
-                            )
+                        'Completed',
+                        style: TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold),
+                      )
                           : const Text(
-                              'Incomplete',
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.bold),
-                            ),
+                        'Incomplete',
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
                   );
                 },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

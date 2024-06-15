@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:habitual_heart_app/pages/mood_update_page.dart';
-import 'package:habitual_heart_app/pages/profile_page.dart';
 import 'package:intl/intl.dart';
 
 import '../design/font_style.dart';
@@ -24,12 +23,6 @@ class _MoodHistoryPageState extends State<MoodHistoryPage> {
     fetchAllMood();
   }
 
-  void refreshHomePage() {
-    setState(() {
-      // Refresh your data here
-    });
-  }
-
   Future<void> fetchAllMood() async {
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
@@ -48,6 +41,33 @@ class _MoodHistoryPageState extends State<MoodHistoryPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error fetching moods: $e'),
+        ),
+      );
+    }
+  }
+
+  void refreshHomePage() async {
+    setState(() {
+      isLoading = true;  // Show loading indicator while fetching new data
+    });
+
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('moodRecord')
+          .orderBy('timestamp', descending: true)
+          .get();
+
+      setState(() {
+        moodRecords = querySnapshot.docs;
+        isLoading = false;  // Hide loading indicator once data is fetched
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;  // Hide loading indicator in case of error
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error refreshing moods: $e'),
         ),
       );
     }
@@ -131,14 +151,14 @@ class _MoodHistoryPageState extends State<MoodHistoryPage> {
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: MoodListWidget(
-                moodRecords: moodRecords,
-                onDelete: (moodId) => showDeleteConfirmationDialog(moodId),
-              ),
-            ),
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: MoodListWidget(
+            moodRecords: moodRecords,
+            onDelete: (moodId) => showDeleteConfirmationDialog(moodId),
           ),
+        ),
+      ),
     );
   }
 }
