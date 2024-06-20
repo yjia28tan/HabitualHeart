@@ -16,8 +16,8 @@ class SigninPage extends StatefulWidget {
 }
 
 class _SigninPageState extends State<SigninPage> {
-  TextEditingController _emailTextController = TextEditingController(text: "yijia_tan@hotmail.com");
-  TextEditingController _passwordTextController = TextEditingController(text: "123123");
+  TextEditingController _emailTextController = TextEditingController();
+  TextEditingController _passwordTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {

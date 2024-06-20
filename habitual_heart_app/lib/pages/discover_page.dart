@@ -6,7 +6,7 @@ import '../widgets/cardview_discover.dart';
 import 'package:habitual_heart_app/data/get_quotes_with_api.dart';
 import '/models/quote_model.dart';
 import '/pages/meditation_guide_page.dart';
-import 'package:habitual_heart_app/data/youtube_services.dart'; // Import YouTube service
+import 'package:habitual_heart_app/data/youtube_service.dart'; // Import YouTube service
 
 class DiscoverPage extends StatefulWidget {
   static String routeName = '/DiscoverPage';

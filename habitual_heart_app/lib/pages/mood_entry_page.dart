@@ -271,7 +271,7 @@ class _MoodEntryPageState extends State<MoodEntryPage> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Container(
-              height: 250,
+              height: 280,
               color: Color(0xFFE5FFD0).withOpacity(0.5),// Set background color
               child: Column(
                 children: [
